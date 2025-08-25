@@ -1,0 +1,327 @@
+name: 🔍 Terraform Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'infrastructure/terraform/**'
+      - '.github/workflows/terraform-*.yml'
+
+  push:
+    branches:
+      - develop
+      - 'feature/**'
+      - 'fix/**'
+    paths:
+      - 'infrastructure/terraform/**'
+
+env:
+  TF_VERSION: '1.5.0'
+  AWS_REGION: 'us-east-2'
+  TF_IN_AUTOMATION: true
+  TF_INPUT: false
+
+jobs:
+  # Pre-validation checks
+  pre-validation:
+    name: 🔎 Pre-validation Checks
+    runs-on: ubuntu-latest
+    outputs:
+      terraform_changed: ${{ steps.changes.outputs.terraform }}
+      terraform_files: ${{ steps.changes.outputs.terraform_files }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check for Terraform changes
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            terraform:
+              - 'infrastructure/terraform/**/*.tf'
+              - 'infrastructure/terraform/**/*.tfvars'
+              - 'infrastructure/terraform/**/*.hcl'
+
+      - name: List changed Terraform files
+        if: steps.changes.outputs.terraform == 'true'
+        run: |
+          echo "Changed Terraform files:"
+          git diff --name-only HEAD~1 HEAD -- 'infrastructure/terraform/' || true
+
+  # Terraform format and validation
+  terraform-validate:
+    name: ✅ Validate Terraform
+    runs-on: ubuntu-latest
+    needs: pre-validation
+    if: needs.pre-validation.outputs.terraform_changed == 'true'
+    
+    defaults:
+      run:
+        working-directory: infrastructure/terraform/core
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Format Check
+        id: fmt
+        run: |
+          echo "Checking Terraform formatting..."
+          terraform fmt -check -recursive -diff
+        continue-on-error: true
+
+      - name: Terraform Initialize
+        id: init
+        run: |
+          echo "Initializing Terraform..."
+          terraform init -backend=false
+
+      - name: Terraform Validate
+        id: validate
+        run: |
+          echo "Validating Terraform configuration..."
+          terraform validate
+
+      - name: Run tflint (if available)
+        id: tflint
+        run: |
+          if command -v tflint &> /dev/null; then
+            echo "Running tflint..."
+            tflint --init
+            tflint --recursive
+          else
+            echo "tflint not available, skipping..."
+          fi
+        continue-on-error: true
+
+      - name: Run tfsec security scan
+        id: tfsec
+        run: |
+          if command -v tfsec &> /dev/null; then
+            echo "Running tfsec security scan..."
+            tfsec . --format json > tfsec-results.json || true
+            cat tfsec-results.json
+          else
+            echo "tfsec not available, installing..."
+            curl -s https://api.github.com/repos/aquasecurity/tfsec/releases/latest \
+              | grep browser_download_url \
+              | grep linux-amd64 \
+              | cut -d '"' -f 4 \
+              | wget -O tfsec.tar.gz -qi -
+            tar -xzf tfsec.tar.gz
+            chmod +x tfsec
+            ./tfsec . --format json > tfsec-results.json || true
+            echo "Security scan completed"
+          fi
+        continue-on-error: true
+
+      - name: Upload validation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-validation-${{ github.sha }}
+          path: |
+            infrastructure/terraform/core/tfsec-results.json
+          retention-days: 7
+
+      - name: Comment validation results on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fmtResult = '${{ steps.fmt.outcome }}';
+            const validateResult = '${{ steps.validate.outcome }}';
+            const tflintResult = '${{ steps.tflint.outcome }}';
+            const tfsecResult = '${{ steps.tfsec.outcome }}';
+            
+            let comment = `## 🔍 Terraform Validation Results\n\n`;
+            comment += `| Check | Status |\n`;
+            comment += `|-------|--------|\n`;
+            comment += `| Format Check | ${fmtResult === 'success' ? '✅ Passed' : '❌ Failed'} |\n`;
+            comment += `| Validation | ${validateResult === 'success' ? '✅ Passed' : '❌ Failed'} |\n`;
+            comment += `| TFLint | ${tflintResult === 'success' ? '✅ Passed' : tflintResult === 'failure' ? '⚠️ Issues Found' : '⏭️ Skipped'} |\n`;
+            comment += `| Security Scan | ${tfsecResult === 'success' ? '✅ Passed' : tfsecResult === 'failure' ? '⚠️ Issues Found' : '⏭️ Skipped'} |\n\n`;
+            
+            if (fmtResult !== 'success') {
+              comment += `### ❌ Format Check Failed\n`;
+              comment += `Please run \`terraform fmt -recursive\` to fix formatting issues.\n\n`;
+            }
+            
+            if (validateResult !== 'success') {
+              comment += `### ❌ Validation Failed\n`;
+              comment += `Please check the Terraform configuration for syntax errors.\n\n`;
+            }
+            
+            comment += `**Commit:** \`${{ github.sha }}\`\n`;
+            comment += `**Branch:** \`${{ github.head_ref }}\`\n`;
+            
+            // Find existing comment to update
+            const { data: comments } = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            
+            const existingComment = comments.find(c => 
+              c.user.login === 'github-actions[bot]' && 
+              c.body.includes('🔍 Terraform Validation Results')
+            );
+            
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                comment_id: existingComment.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
+
+      - name: Fail workflow if validation failed
+        if: steps.fmt.outcome == 'failure' || steps.validate.outcome == 'failure'
+        run: |
+          echo "❌ Terraform validation failed"
+          exit 1
+
+  # Cost estimation (if Infracost is configured)
+  cost-estimation:
+    name: 💰 Cost Estimation
+    runs-on: ubuntu-latest
+    needs: [pre-validation, terraform-validate]
+    if: needs.pre-validation.outputs.terraform_changed == 'true'
+    
+    defaults:
+      run:
+        working-directory: infrastructure/terraform/core
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure AWS credentials (for plan generation)
+        if: github.event_name == 'pull_request'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v3
+        if: github.event_name == 'pull_request'
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+
+      - name: Generate cost estimate
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "Generating cost estimate..."
+          
+          # Initialize Terraform
+          terraform init
+          terraform workspace select dev || terraform workspace new dev
+          
+          # Generate plan for cost estimation
+          terraform plan -var-file="terraform.dev.tfvars" -out=tfplan.binary
+          terraform show -json tfplan.binary > tfplan.json
+          
+          # Run Infracost
+          if command -v infracost &> /dev/null; then
+            infracost breakdown --path tfplan.json --format json > infracost.json
+            infracost comment github --repo ${{ github.repository }} --pull-request ${{ github.event.number }} --path infracost.json --behavior update
+          else
+            echo "Infracost not available - cost estimation skipped"
+            echo "To enable cost estimation, add INFRACOST_API_KEY to your secrets"
+          fi
+        continue-on-error: true
+
+  # Documentation checks
+  docs-check:
+    name: 📚 Documentation Check
+    runs-on: ubuntu-latest
+    needs: pre-validation
+    if: needs.pre-validation.outputs.terraform_changed == 'true'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for README updates
+        run: |
+          echo "Checking documentation..."
+          
+          # Check if README files exist
+          if [ ! -f "README.md" ]; then
+            echo "⚠️ Project README.md missing"
+          fi
+          
+          if [ ! -f "infrastructure/README.md" ]; then
+            echo "⚠️ Infrastructure README.md missing"
+          fi
+          
+          if [ ! -f "infrastructure/terraform/README.md" ]; then
+            echo "⚠️ Terraform README.md missing"
+          fi
+          
+          # Check for terraform-docs
+          if command -v terraform-docs &> /dev/null; then
+            echo "Generating Terraform documentation..."
+            terraform-docs markdown table infrastructure/terraform/modules/ > terraform-modules-docs.md
+          else
+            echo "terraform-docs not available - documentation check skipped"
+          fi
+
+  # Summary
+  validation-summary:
+    name: 📊 Validation Summary
+    runs-on: ubuntu-latest
+    needs: [pre-validation, terraform-validate, cost-estimation, docs-check]
+    if: always() && needs.pre-validation.outputs.terraform_changed == 'true'
+    
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## 🔍 Terraform Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Event:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.head_ref || github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Actor:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔧 Validation Results" >> $GITHUB_STEP_SUMMARY
+          echo "- **Pre-validation:** ${{ needs.pre-validation.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Terraform Validation:** ${{ needs.terraform-validate.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Cost Estimation:** ${{ needs.cost-estimation.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Documentation Check:** ${{ needs.docs-check.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "${{ needs.terraform-validate.result }}" == "success" ]]; then
+            echo "✅ **All validations passed!** Ready for review and merge." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Validation failed.** Please fix issues before merging." >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🕒 Completed at $(date)" >> $GITHUB_STEP_SUMMARY

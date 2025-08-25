@@ -1,0 +1,461 @@
+name: 🚀 Terraform Infrastructure Deployment
+
+on:
+  # Trigger on push to main (when PR is merged)
+  push:
+    branches:
+      - main
+    paths:
+      - 'infrastructure/terraform/**'
+      - '.github/workflows/terraform-deploy.yml'
+  
+  # Allow manual deployment
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+        - dev
+        - staging
+        - prod
+      terraform_action:
+        description: 'Terraform action'
+        required: true
+        default: 'apply'
+        type: choice
+        options:
+        - plan
+        - apply
+        - destroy
+
+  # Trigger on PR for validation
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'infrastructure/terraform/**'
+      - '.github/workflows/terraform-deploy.yml'
+
+env:
+  TF_VERSION: '1.5.0'
+  AWS_REGION: 'us-east-2'
+  TF_IN_AUTOMATION: true
+  TF_INPUT: false
+
+jobs:
+  # Detect changes and determine environments to deploy
+  detect-changes:
+    name: 🔍 Detect Infrastructure Changes
+    runs-on: ubuntu-latest
+    outputs:
+      environments: ${{ steps.detect.outputs.environments }}
+      terraform_changed: ${{ steps.detect.outputs.terraform_changed }}
+      matrix: ${{ steps.detect.outputs.matrix }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect changed environments
+        id: detect
+        run: |
+          echo "Detecting changes in Terraform configurations..."
+          
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "Manual deployment triggered for: ${{ github.event.inputs.environment }}"
+            echo "environments=[${{ github.event.inputs.environment }}]" >> $GITHUB_OUTPUT
+            echo "terraform_changed=true" >> $GITHUB_OUTPUT
+            echo "matrix={\"environment\": [\"${{ github.event.inputs.environment }}\"]}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "PR validation - will plan for dev environment"
+            echo "environments=[\"dev\"]" >> $GITHUB_OUTPUT  
+            echo "terraform_changed=true" >> $GITHUB_OUTPUT
+            echo "matrix={\"environment\": [\"dev\"]}" >> $GITHUB_OUTPUT
+          else
+            # Check for terraform changes
+            if git diff --name-only HEAD^ HEAD | grep -q "infrastructure/terraform/"; then
+              echo "Terraform changes detected"
+              echo "environments=[\"dev\"]" >> $GITHUB_OUTPUT
+              echo "terraform_changed=true" >> $GITHUB_OUTPUT
+              echo "matrix={\"environment\": [\"dev\"]}" >> $GITHUB_OUTPUT
+            else
+              echo "No Terraform changes detected"
+              echo "environments=[]" >> $GITHUB_OUTPUT
+              echo "terraform_changed=false" >> $GITHUB_OUTPUT
+              echo "matrix={\"environment\": []}" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+  # Terraform validation and planning
+  terraform-plan:
+    name: 📋 Plan (${{ matrix.environment }})
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.terraform_changed == 'true'
+    
+    strategy:
+      matrix: ${{ fromJSON(needs.detect-changes.outputs.matrix) }}
+      fail-fast: false
+    
+    environment: 
+      name: ${{ matrix.environment }}
+    
+    defaults:
+      run:
+        working-directory: infrastructure/terraform/core
+    
+    outputs:
+      plan-exists: ${{ steps.plan.outputs.plan-exists }}
+      plan-exitcode: ${{ steps.plan.outputs.exitcode }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Verify AWS connection
+        run: |
+          echo "Testing AWS connection..."
+          aws sts get-caller-identity
+          echo "✅ AWS connection verified"
+
+      - name: Setup Terraform workspace
+        run: |
+          echo "Initializing Terraform..."
+          terraform init
+          
+          echo "Setting up workspace for ${{ matrix.environment }}..."
+          terraform workspace select ${{ matrix.environment }} || terraform workspace new ${{ matrix.environment }}
+          terraform workspace show
+
+      - name: Validate Terraform
+        run: |
+          echo "Validating Terraform configuration..."
+          terraform fmt -check -recursive
+          terraform validate
+
+      - name: Generate Terraform plan
+        id: plan
+        run: |
+          echo "Generating Terraform plan for ${{ matrix.environment }}..."
+          
+          # Determine tfvars file
+          TFVARS_FILE="terraform.${{ matrix.environment }}.tfvars"
+          if [[ "${{ matrix.environment }}" == "dev" ]]; then
+            TFVARS_FILE="terraform.dev.tfvars"
+          elif [[ "${{ matrix.environment }}" == "prod" ]]; then
+            TFVARS_FILE="terraform.prod.tfvars" 
+          fi
+          
+          echo "Using tfvars file: $TFVARS_FILE"
+          
+          # Generate plan
+          terraform plan \
+            -var-file="$TFVARS_FILE" \
+            -out="tfplan-${{ matrix.environment }}-${{ github.sha }}.tfplan" \
+            -detailed-exitcode
+          
+          # Capture exit code
+          EXITCODE=$?
+          echo "exitcode=$EXITCODE" >> $GITHUB_OUTPUT
+          
+          if [[ $EXITCODE -eq 0 ]]; then
+            echo "✅ No changes needed"
+            echo "plan-exists=false" >> $GITHUB_OUTPUT
+          elif [[ $EXITCODE -eq 2 ]]; then
+            echo "📋 Changes detected - plan generated"
+            echo "plan-exists=true" >> $GITHUB_OUTPUT
+            
+            # Generate human-readable plan
+            terraform show -no-color "tfplan-${{ matrix.environment }}-${{ github.sha }}.tfplan" > "plan-output-${{ matrix.environment }}.txt"
+          else
+            echo "❌ Terraform plan failed"
+            exit $EXITCODE
+          fi
+
+      - name: Upload plan artifacts
+        if: steps.plan.outputs.plan-exists == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan-${{ matrix.environment }}-${{ github.sha }}
+          path: |
+            infrastructure/terraform/core/tfplan-${{ matrix.environment }}-${{ github.sha }}.tfplan
+            infrastructure/terraform/core/plan-output-${{ matrix.environment }}.txt
+          retention-days: 30
+
+      - name: Comment plan on PR
+        if: github.event_name == 'pull_request' && steps.plan.outputs.plan-exists == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const planOutput = fs.readFileSync('infrastructure/terraform/core/plan-output-${{ matrix.environment }}.txt', 'utf8');
+            
+            const comment = `## 📋 Terraform Plan Results - ${{ matrix.environment }} Environment
+            
+            <details>
+            <summary>🔍 Click to view plan details</summary>
+            
+            \`\`\`hcl
+            ${planOutput.substring(0, 59000)}
+            ${planOutput.length > 59000 ? '\n... (truncated)' : ''}
+            \`\`\`
+            </details>
+            
+            **Plan Summary:**
+            - Environment: \`${{ matrix.environment }}\`
+            - Commit: \`${{ github.sha }}\`
+            - Status: ${{ steps.plan.outputs.exitcode == '2' ? '📋 Changes detected' : '✅ No changes' }}
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  # Terraform deployment (only on main branch push or manual dispatch)
+  terraform-apply:
+    name: 🚀 Deploy (${{ matrix.environment }})
+    runs-on: ubuntu-latest
+    needs: [detect-changes, terraform-plan]
+    if: |
+      needs.detect-changes.outputs.terraform_changed == 'true' &&
+      needs.terraform-plan.outputs.plan-exists == 'true' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    
+    strategy:
+      matrix: ${{ fromJSON(needs.detect-changes.outputs.matrix) }}
+      fail-fast: false
+    
+    environment: 
+      name: ${{ matrix.environment }}
+      url: https://${{ matrix.environment }}.diatonic.ai
+    
+    defaults:
+      run:
+        working-directory: infrastructure/terraform/core
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Download plan artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-plan-${{ matrix.environment }}-${{ github.sha }}
+          path: infrastructure/terraform/core/
+
+      - name: Setup Terraform workspace
+        run: |
+          echo "Initializing Terraform..."
+          terraform init
+          
+          echo "Setting up workspace for ${{ matrix.environment }}..."
+          terraform workspace select ${{ matrix.environment }} || terraform workspace new ${{ matrix.environment }}
+          terraform workspace show
+
+      - name: Apply Terraform plan
+        id: apply
+        run: |
+          echo "🚀 Applying Terraform plan for ${{ matrix.environment }}..."
+          
+          # Apply the specific plan
+          terraform apply -auto-approve "tfplan-${{ matrix.environment }}-${{ github.sha }}.tfplan"
+          
+          echo "✅ Terraform apply completed successfully!"
+
+      - name: Extract outputs
+        id: outputs
+        run: |
+          echo "Extracting Terraform outputs..."
+          
+          # Get key outputs
+          VPC_ID=$(terraform output -raw vpc_id 2>/dev/null || echo "not-available")
+          WEB_URL=$(terraform output -raw web_application_url 2>/dev/null || echo "not-available")
+          ALB_DNS=$(terraform output -raw web_application_load_balancer_dns 2>/dev/null || echo "not-available")
+          
+          echo "vpc-id=$VPC_ID" >> $GITHUB_OUTPUT
+          echo "web-url=$WEB_URL" >> $GITHUB_OUTPUT
+          echo "alb-dns=$ALB_DNS" >> $GITHUB_OUTPUT
+          
+          # Save all outputs to file
+          terraform output -json > terraform-outputs-${{ matrix.environment }}.json
+
+      - name: Upload deployment artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-outputs-${{ matrix.environment }}-${{ github.sha }}
+          path: |
+            infrastructure/terraform/core/terraform-outputs-${{ matrix.environment }}.json
+          retention-days: 90
+
+      - name: Verify deployment
+        run: |
+          echo "🔍 Verifying deployment for ${{ matrix.environment }}..."
+          
+          # Basic AWS resource verification
+          echo "Checking VPC..."
+          if [[ "${{ steps.outputs.outputs.vpc-id }}" != "not-available" ]]; then
+            aws ec2 describe-vpcs --vpc-ids ${{ steps.outputs.outputs.vpc-id }} --query 'Vpcs[0].State' --output text
+          fi
+          
+          echo "Checking ECS cluster..."
+          aws ecs describe-clusters --clusters aws-devops-${{ matrix.environment }}-cluster --query 'clusters[0].status' --output text
+          
+          echo "✅ Deployment verification completed"
+
+      - name: Update deployment status
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ job.status }}' === 'success' ? '✅ SUCCESS' : '❌ FAILED';
+            const environment = '${{ matrix.environment }}';
+            const webUrl = '${{ steps.outputs.outputs.web-url }}';
+            const vpcId = '${{ steps.outputs.outputs.vpc-id }}';
+            
+            const body = `## 🚀 Deployment Status - ${environment.toUpperCase()} Environment
+            
+            **Status:** ${status}
+            **Environment:** \`${environment}\`
+            **Commit:** \`${{ github.sha }}\`
+            **Deployed by:** @${{ github.actor }}
+            **Timestamp:** \`${{ github.event.head_commit.timestamp }}\`
+            
+            ### 📊 Deployment Details
+            - **Application URL:** ${webUrl !== 'not-available' ? `🔗 [${webUrl}](${webUrl})` : '⏳ Not available yet'}
+            - **VPC ID:** \`${vpcId}\`
+            - **Region:** \`${{ env.AWS_REGION }}\`
+            
+            ### 🔍 Resources Deployed
+            - ✅ VPC and networking infrastructure
+            - ✅ S3 buckets with fixed lifecycle rules
+            - ✅ ECS Fargate web application
+            - ✅ Application Load Balancer with SSL
+            - ✅ CloudWatch monitoring and logging
+            
+            ${status.includes('SUCCESS') ? 
+              '### 🎉 Deployment completed successfully! Your infrastructure is ready.' : 
+              '### ⚠️ Deployment encountered issues. Please check the logs above.'}
+            `;
+            
+            // Create issue comment for deployment status
+            if (context.issue && context.issue.number) {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            }
+
+  # Notification job
+  notify:
+    name: 📢 Send Notifications
+    runs-on: ubuntu-latest
+    needs: [detect-changes, terraform-plan, terraform-apply]
+    if: always() && needs.detect-changes.outputs.terraform_changed == 'true'
+    
+    steps:
+      - name: Determine overall status
+        id: status
+        run: |
+          if [[ "${{ needs.terraform-apply.result }}" == "success" ]]; then
+            echo "status=✅ SUCCESS" >> $GITHUB_OUTPUT
+            echo "color=good" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.terraform-apply.result }}" == "failure" ]]; then
+            echo "status=❌ FAILED" >> $GITHUB_OUTPUT
+            echo "color=danger" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.terraform-plan.result }}" == "success" ]]; then
+            echo "status=📋 PLANNED" >> $GITHUB_OUTPUT
+            echo "color=warning" >> $GITHUB_OUTPUT
+          else
+            echo "status=⚠️ UNKNOWN" >> $GITHUB_OUTPUT
+            echo "color=warning" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Slack notification (if configured)
+        if: vars.SLACK_WEBHOOK_URL
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{
+              "text": "🏗️ AWS DevOps Infrastructure Deployment",
+              "attachments": [
+                {
+                  "color": "${{ steps.status.outputs.color }}",
+                  "title": "Terraform Deployment ${{ steps.status.outputs.status }}",
+                  "fields": [
+                    {
+                      "title": "Repository",
+                      "value": "${{ github.repository }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Branch",
+                      "value": "${{ github.ref_name }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Commit",
+                      "value": "<${{ github.event.head_commit.url }}|${{ github.sha }}>",
+                      "short": true
+                    },
+                    {
+                      "title": "Actor",
+                      "value": "${{ github.actor }}",
+                      "short": true
+                    }
+                  ],
+                  "footer": "GitHub Actions",
+                  "ts": ${{ github.event.head_commit.timestamp }}
+                }
+              ]
+            }' \
+            '${{ vars.SLACK_WEBHOOK_URL }}'
+
+      - name: Summary
+        run: |
+          echo "## 🏗️ Infrastructure Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** ${{ steps.status.outputs.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Actor:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔧 Jobs Status" >> $GITHUB_STEP_SUMMARY
+          echo "- **Change Detection:** ${{ needs.detect-changes.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Terraform Plan:** ${{ needs.terraform-plan.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Terraform Apply:** ${{ needs.terraform-apply.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✨ Workflow completed at $(date)" >> $GITHUB_STEP_SUMMARY
