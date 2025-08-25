@@ -130,3 +130,14 @@ packer_cache/
 # Backup files
 *.backup
 backups/
+
+# Project artifacts
+*.tar.gz
+*.zip
+*.tar
+aws-devops-complete.tar.gz
+REQUIRED_SECRETS.md
+
+# Terraform plan files
+tfplan-*
+*.tfplan
