@@ -17,8 +17,8 @@ locals {
 
       # Domain Configuration (Cloudflare integration)
       enable_custom_domain = var.web_app_domain_name != null
-      domain_name          = var.web_app_domain_name         # Set to dev.yourdomain.com
-      enable_https         = var.web_app_domain_name != null # Cloudflare handles SSL
+      domain_name          = var.web_app_domain_name # Set to dev.yourdomain.com
+      enable_https         = var.enable_https        # Use explicit HTTPS flag
 
       # Database Configuration
       enable_database         = false
@@ -56,7 +56,7 @@ locals {
       # Domain Configuration
       enable_custom_domain = true
       domain_name          = "staging.${var.project_name}.com"
-      enable_https         = true
+      enable_https         = var.enable_https
 
       # Database Configuration
       enable_database         = true
@@ -84,7 +84,7 @@ locals {
       # Domain Configuration
       enable_custom_domain = true
       domain_name          = "${var.project_name}.com"
-      enable_https         = true
+      enable_https         = var.enable_https
 
       # Database Configuration
       enable_database         = true
@@ -185,9 +185,9 @@ module "dns" {
   cloudfront_distribution_domain_name    = null
   cloudfront_distribution_hosted_zone_id = null
 
-  # Load balancer integration
-  load_balancer_domain_name    = module.web_application.load_balancer_dns_name
-  load_balancer_hosted_zone_id = module.web_application.load_balancer_zone_id
+  # Load balancer integration (pass null initially to avoid count dependency issues)
+  load_balancer_domain_name    = null # Will be updated in a separate DNS update step
+  load_balancer_hosted_zone_id = null
 
   # Certificate validation records (will be empty initially, updated after certificate creation)
   certificate_validation_records = []
@@ -198,15 +198,15 @@ module "dns" {
   # Health checks
   health_checks = var.enable_health_checks ? [
     {
-      name                            = "primary-domain"
-      type                            = "HTTPS"
-      fqdn                            = var.web_app_domain_name
-      port                            = 443
-      resource_path                   = "/"
-      failure_threshold               = 3
-      request_interval                = 30
-      cloudwatch_alarm_region         = var.aws_region
-      insufficient_data_health_status = "LastKnownStatus"
+      name                    = "primary-domain"
+      type                    = "HTTPS"
+      fqdn                    = var.web_app_domain_name
+      port                    = 443
+      resource_path           = "/"
+      failure_threshold       = 3
+      request_interval        = 30
+      cloudwatch_alarm_region = var.aws_region
+      # insufficient_data_health_status not needed for basic health checks
       tags = {
         Name = "${local.web_app_name_prefix}-primary-health-check"
       }
@@ -251,6 +251,23 @@ module "ssl_certificate" {
     Component = "ssl-certificate"
     Tier      = "security"
   })
+}
+
+# ALB Route53 Record (separate from main DNS module to avoid count dependency)
+resource "aws_route53_record" "alb_main" {
+  count = var.enable_route53 && var.web_app_domain_name != null ? 1 : 0
+
+  zone_id = var.enable_route53 && var.create_hosted_zone ? module.dns[0].hosted_zone_id : var.existing_zone_id
+  name    = var.web_app_domain_name
+  type    = "A"
+
+  alias {
+    name                   = module.web_application.load_balancer_dns_name
+    zone_id                = module.web_application.load_balancer_zone_id
+    evaluate_target_health = true
+  }
+
+  depends_on = [module.web_application, module.dns]
 }
 
 # CloudFront CDN (optional, based on environment)
@@ -334,10 +351,13 @@ module "web_cdn" {
   logging_bucket = var.environment == "prod" ? module.s3.logs_bucket_name : null
 
   # Tags
-  tags = merge(local.common_tags, {
-    Component = "web-cdn"
-    Tier      = "distribution"
-  })
+  tags = {
+    Project     = "AWS-DevOps"
+    Environment = "dev"
+    Component   = "homepage"
+    Type        = "static-content"
+    ManagedBy   = "Terraform"
+  }
 }
 
 # Simple homepage for immediate deployment
@@ -345,6 +365,8 @@ resource "aws_s3_object" "homepage" {
   bucket       = module.s3.static_assets_bucket_name
   key          = "index.html"
   content_type = "text/html"
+
+  depends_on = [module.s3]
 
   content = <<-EOF
 <!DOCTYPE html>
@@ -534,10 +556,13 @@ resource "aws_s3_object" "homepage" {
 </html>
 EOF
 
-  tags = merge(local.common_tags, {
-    Component = "homepage"
-    Type      = "static-content"
-  })
+  tags = {
+    Project     = "AWS-DevOps"
+    Environment = var.environment
+    Component   = "homepage"
+    Type        = "static-content"
+    ManagedBy   = "Terraform"
+  }
 }
 
 # Error page
@@ -545,6 +570,8 @@ resource "aws_s3_object" "error_page" {
   bucket       = module.s3.static_assets_bucket_name
   key          = "error.html"
   content_type = "text/html"
+
+  depends_on = [module.s3]
 
   content = <<-EOF
 <!DOCTYPE html>
@@ -587,8 +614,11 @@ resource "aws_s3_object" "error_page" {
 </html>
 EOF
 
-  tags = merge(local.common_tags, {
-    Component = "error-page"
-    Type      = "static-content"
-  })
+  tags = {
+    Project     = "AWS-DevOps"
+    Environment = var.environment
+    Component   = "error-page"
+    Type        = "static-content"
+    ManagedBy   = "Terraform"
+  }
 }

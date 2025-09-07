@@ -1,0 +1,279 @@
+[0m[1mmodule.s3.random_string.bucket_suffix: Refreshing state... [id=dzfngw8v][0m
+[0m[1mmodule.vpc.data.aws_availability_zones.available: Reading...[0m[0m
+[0m[1mdata.aws_caller_identity.current: Reading...[0m[0m
+[0m[1mmodule.web_application.data.aws_caller_identity.current: Reading...[0m[0m
+[0m[1mmodule.s3.data.aws_caller_identity.current: Reading...[0m[0m
+[0m[1mmodule.dns[0].data.aws_route53_zone.existing[0]: Reading...[0m[0m
+[0m[1mmodule.web_application.data.aws_region.current: Reading...[0m[0m
+[0m[1mmodule.s3.data.aws_region.current: Reading...[0m[0m
+[0m[1mmodule.s3.data.aws_partition.current: Reading...[0m[0m
+[0m[1mmodule.vpc.aws_vpc.main: Refreshing state... [id=vpc-0afa64bf5579542eb][0m
+[0m[1mmodule.web_application.data.aws_region.current: Read complete after 0s [id=us-east-2][0m
+[0m[1mmodule.s3.data.aws_region.current: Read complete after 0s [id=us-east-2][0m
+[0m[1mmodule.s3.data.aws_partition.current: Read complete after 0s [id=aws][0m
+[0m[1mmodule.s3.data.aws_caller_identity.current: Read complete after 0s [id=313476888312][0m
+[0m[1mdata.aws_caller_identity.current: Read complete after 0s [id=313476888312][0m
+[0m[1mmodule.dns[0].aws_route53_health_check.main["primary-domain"]: Refreshing state... [id=4d08f250-2a45-4dda-8987-89e020a7ec88][0m
+[0m[1mmodule.web_application.aws_iam_role.ecs_execution_role: Refreshing state... [id=aws-devops-dev-ecs-execution-role][0m
+[0m[1mmodule.s3.aws_s3_bucket.main["application"]: Refreshing state... [id=aws-devops-dev-application-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket.main["static-assets"]: Refreshing state... [id=aws-devops-dev-static-assets-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket.main["logs"]: Refreshing state... [id=aws-devops-dev-logs-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket.main["compliance"]: Refreshing state... [id=aws-devops-dev-compliance-development-dzfngw8v][0m
+[0m[1mmodule.web_application.data.aws_caller_identity.current: Read complete after 0s [id=313476888312][0m
+[0m[1mmodule.s3.aws_s3_bucket.main["backup"]: Refreshing state... [id=aws-devops-dev-backup-development-dzfngw8v][0m
+[0m[1mmodule.vpc.data.aws_availability_zones.available: Read complete after 0s [id=us-east-2][0m
+[0m[1mmodule.s3.aws_kms_key.s3_key[0]: Refreshing state... [id=a107d881-54c2-4e52-b7a8-69c645505856][0m
+[0m[1mmodule.web_application.aws_iam_role.ecs_task_role: Refreshing state... [id=aws-devops-dev-ecs-task-role][0m
+[0m[1mmodule.dns[0].data.aws_route53_zone.existing[0]: Read complete after 1s [id=Z032094313J9CQ17JQ2OQ][0m
+[0m[1mmodule.web_application.aws_cloudwatch_log_group.main[0]: Refreshing state... [id=/ecs/aws-devops-dev][0m
+[0m[1mmodule.dns[0].aws_cloudwatch_metric_alarm.domain_health[0]: Refreshing state... [id=aws-devops-dev-domain-health][0m
+[0m[1mmodule.web_application.aws_iam_role_policy_attachment.ecs_execution_role_policy: Refreshing state... [id=aws-devops-dev-ecs-execution-role-20250907184610378900000001][0m
+[0m[1mmodule.s3.aws_kms_alias.s3_key_alias[0]: Refreshing state... [id=alias/aws-devops-dev-s3-development][0m
+[0m[1mmodule.web_application.aws_ecs_cluster.main: Refreshing state... [id=arn:aws:ecs:us-east-2:313476888312:cluster/aws-devops-dev-cluster][0m
+[0m[1mmodule.web_application.aws_ecs_task_definition.main: Refreshing state... [id=aws-devops-dev-task][0m
+[0m[1mmodule.vpc.aws_route_table.data: Refreshing state... [id=rtb-00538eb9f7860ca84][0m
+[0m[1mmodule.vpc.aws_internet_gateway.main: Refreshing state... [id=igw-0bf53fa3dae5a9cf1][0m
+[0m[1mmodule.web_application.aws_security_group.alb: Refreshing state... [id=sg-002c3495354348261][0m
+[0m[1mmodule.vpc.aws_subnet.private[2]: Refreshing state... [id=subnet-0cc9192f2fb15c084][0m
+[0m[1mmodule.vpc.aws_subnet.private[0]: Refreshing state... [id=subnet-0d23209f1df0b670c][0m
+[0m[1mmodule.vpc.aws_subnet.private[1]: Refreshing state... [id=subnet-02d6b86c59dcfbd56][0m
+[0m[1mmodule.vpc.aws_subnet.public[1]: Refreshing state... [id=subnet-0a969f703f88ba873][0m
+[0m[1mmodule.vpc.aws_subnet.public[0]: Refreshing state... [id=subnet-080cf74da64560622][0m
+[0m[1mmodule.vpc.aws_subnet.public[2]: Refreshing state... [id=subnet-0cd9b04713d034dd6][0m
+[0m[1mmodule.web_application.aws_lb_target_group.main: Refreshing state... [id=arn:aws:elasticloadbalancing:us-east-2:313476888312:targetgroup/aws-devops-dev-tg/1269a496cecfce55][0m
+[0m[1mmodule.vpc.aws_route_table.public: Refreshing state... [id=rtb-084cc806c4f9302da][0m
+[0m[1mmodule.vpc.aws_eip.nat[0]: Refreshing state... [id=eipalloc-0ae30120ef594c1ae][0m
+[0m[1mmodule.web_application.aws_security_group.ecs_tasks: Refreshing state... [id=sg-064f39209eb112e1b][0m
+[0m[1mmodule.s3.aws_s3_bucket_logging.main["static-assets"]: Refreshing state... [id=aws-devops-dev-static-assets-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_logging.main["application"]: Refreshing state... [id=aws-devops-dev-application-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_logging.main["backup"]: Refreshing state... [id=aws-devops-dev-backup-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_logging.main["compliance"]: Refreshing state... [id=aws-devops-dev-compliance-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_metric.main["static-assets"]: Refreshing state... [id=aws-devops-dev-static-assets-development-dzfngw8v:EntireBucket][0m
+[0m[1mmodule.s3.aws_s3_bucket_metric.main["application"]: Refreshing state... [id=aws-devops-dev-application-development-dzfngw8v:EntireBucket][0m
+[0m[1mmodule.s3.aws_s3_bucket_metric.main["logs"]: Refreshing state... [id=aws-devops-dev-logs-development-dzfngw8v:EntireBucket][0m
+[0m[1mmodule.s3.aws_s3_bucket_metric.main["backup"]: Refreshing state... [id=aws-devops-dev-backup-development-dzfngw8v:EntireBucket][0m
+[0m[1mmodule.s3.aws_s3_bucket_metric.main["compliance"]: Refreshing state... [id=aws-devops-dev-compliance-development-dzfngw8v:EntireBucket][0m
+[0m[1mmodule.s3.aws_s3_bucket_server_side_encryption_configuration.main["compliance"]: Refreshing state... [id=aws-devops-dev-compliance-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_server_side_encryption_configuration.main["static-assets"]: Refreshing state... [id=aws-devops-dev-static-assets-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_server_side_encryption_configuration.main["logs"]: Refreshing state... [id=aws-devops-dev-logs-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_server_side_encryption_configuration.main["backup"]: Refreshing state... [id=aws-devops-dev-backup-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_server_side_encryption_configuration.main["application"]: Refreshing state... [id=aws-devops-dev-application-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_versioning.main["application"]: Refreshing state... [id=aws-devops-dev-application-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_versioning.main["compliance"]: Refreshing state... [id=aws-devops-dev-compliance-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_versioning.main["static-assets"]: Refreshing state... [id=aws-devops-dev-static-assets-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_versioning.main["logs"]: Refreshing state... [id=aws-devops-dev-logs-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_versioning.main["backup"]: Refreshing state... [id=aws-devops-dev-backup-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_cors_configuration.static_assets[0]: Refreshing state... [id=aws-devops-dev-static-assets-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_lifecycle_configuration.main["logs"]: Refreshing state... [id=aws-devops-dev-logs-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_lifecycle_configuration.main["static-assets"]: Refreshing state... [id=aws-devops-dev-static-assets-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_lifecycle_configuration.main["compliance"]: Refreshing state... [id=aws-devops-dev-compliance-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_lifecycle_configuration.main["backup"]: Refreshing state... [id=aws-devops-dev-backup-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_lifecycle_configuration.main["application"]: Refreshing state... [id=aws-devops-dev-application-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_public_access_block.main["backup"]: Refreshing state... [id=aws-devops-dev-backup-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_public_access_block.main["logs"]: Refreshing state... [id=aws-devops-dev-logs-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_public_access_block.main["compliance"]: Refreshing state... [id=aws-devops-dev-compliance-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_public_access_block.main["static-assets"]: Refreshing state... [id=aws-devops-dev-static-assets-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_public_access_block.main["application"]: Refreshing state... [id=aws-devops-dev-application-development-dzfngw8v][0m
+[0m[1mmodule.web_application.aws_ecs_cluster_capacity_providers.main: Refreshing state... [id=aws-devops-dev-cluster][0m
+[0m[1mmodule.vpc.aws_nat_gateway.main[0]: Refreshing state... [id=nat-0833a128c524fd2d5][0m
+[0m[1mmodule.web_application.aws_lb.main: Refreshing state... [id=arn:aws:elasticloadbalancing:us-east-2:313476888312:loadbalancer/app/aws-devops-dev-alb/a8207a0a72ffb6e1][0m
+[0m[1mmodule.s3.aws_s3_bucket_policy.main["backup"]: Refreshing state... [id=aws-devops-dev-backup-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_policy.main["logs"]: Refreshing state... [id=aws-devops-dev-logs-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_policy.main["compliance"]: Refreshing state... [id=aws-devops-dev-compliance-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_policy.main["application"]: Refreshing state... [id=aws-devops-dev-application-development-dzfngw8v][0m
+[0m[1mmodule.s3.aws_s3_bucket_policy.main["static-assets"]: Refreshing state... [id=aws-devops-dev-static-assets-development-dzfngw8v][0m
+[0m[1mmodule.vpc.aws_route_table.private[0]: Refreshing state... [id=rtb-09512aaff97b9ae3f][0m
+[0m[1mmodule.web_application.aws_lb_listener.main: Refreshing state... [id=arn:aws:elasticloadbalancing:us-east-2:313476888312:listener/app/aws-devops-dev-alb/a8207a0a72ffb6e1/c34c3b734ffc2f19][0m
+[0m[1maws_s3_object.error_page: Refreshing state... [id=error.html][0m
+[0m[1maws_s3_object.homepage: Refreshing state... [id=index.html][0m
+[0m[1mmodule.web_application.aws_ecs_service.main: Refreshing state... [id=arn:aws:ecs:us-east-2:313476888312:service/aws-devops-dev-cluster/aws-devops-dev-service][0m
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  [32m+[0m create[0m
+  [33m~[0m update in-place[0m
+[31m-[0m/[32m+[0m destroy and then create replacement[0m
+
+Terraform will perform the following actions:
+
+[1m  # aws_route53_record.alb_main[0][0m will be created
+[0m  [32m+[0m[0m resource "aws_route53_record" "alb_main" {
+      [32m+[0m[0m allow_overwrite = (known after apply)
+      [32m+[0m[0m fqdn            = (known after apply)
+      [32m+[0m[0m id              = (known after apply)
+      [32m+[0m[0m name            = "dev.diatonic.ai"
+      [32m+[0m[0m type            = "A"
+      [32m+[0m[0m zone_id         = "Z032094313J9CQ17JQ2OQ"
+
+      [32m+[0m[0m alias {
+          [32m+[0m[0m evaluate_target_health = true
+          [32m+[0m[0m name                   = "aws-devops-dev-alb-323221382.us-east-2.elb.amazonaws.com"
+          [32m+[0m[0m zone_id                = "Z3AADJGX6KTTL2"
+        }
+    }
+
+[1m  # module.web_application.aws_appautoscaling_policy.ecs_policy_up[0][0m will be created
+[0m  [32m+[0m[0m resource "aws_appautoscaling_policy" "ecs_policy_up" {
+      [32m+[0m[0m alarm_arns         = (known after apply)
+      [32m+[0m[0m arn                = (known after apply)
+      [32m+[0m[0m id                 = (known after apply)
+      [32m+[0m[0m name               = "aws-devops-dev-scale-up"
+      [32m+[0m[0m policy_type        = "TargetTrackingScaling"
+      [32m+[0m[0m resource_id        = "service/aws-devops-dev-cluster/aws-devops-dev-service"
+      [32m+[0m[0m scalable_dimension = "ecs:service:DesiredCount"
+      [32m+[0m[0m service_namespace  = "ecs"
+
+      [32m+[0m[0m target_tracking_scaling_policy_configuration {
+          [32m+[0m[0m disable_scale_in   = false
+          [32m+[0m[0m scale_in_cooldown  = 300
+          [32m+[0m[0m scale_out_cooldown = 300
+          [32m+[0m[0m target_value       = 70
+
+          [32m+[0m[0m predefined_metric_specification {
+              [32m+[0m[0m predefined_metric_type = "ECSServiceAverageCPUUtilization"
+            }
+        }
+    }
+
+[1m  # module.web_application.aws_appautoscaling_target.ecs_target[0][0m will be created
+[0m  [32m+[0m[0m resource "aws_appautoscaling_target" "ecs_target" {
+      [32m+[0m[0m arn                = (known after apply)
+      [32m+[0m[0m id                 = (known after apply)
+      [32m+[0m[0m max_capacity       = 2
+      [32m+[0m[0m min_capacity       = 1
+      [32m+[0m[0m resource_id        = "service/aws-devops-dev-cluster/aws-devops-dev-service"
+      [32m+[0m[0m role_arn           = (known after apply)
+      [32m+[0m[0m scalable_dimension = "ecs:service:DesiredCount"
+      [32m+[0m[0m service_namespace  = "ecs"
+      [32m+[0m[0m tags               = {
+          [32m+[0m[0m "Account"     = "313476888312"
+          [32m+[0m[0m "Component"   = "web-application"
+          [32m+[0m[0m "CostCenter"  = "Development"
+          [32m+[0m[0m "Environment" = "development"
+          [32m+[0m[0m "ManagedBy"   = "Terraform"
+          [32m+[0m[0m "Module"      = "ecs"
+          [32m+[0m[0m "Name"        = "aws-devops-dev-autoscaling-target"
+          [32m+[0m[0m "Owner"       = "DevOps Team"
+          [32m+[0m[0m "Project"     = "AWS-DevOps"
+          [32m+[0m[0m "Region"      = "us-east-2"
+          [32m+[0m[0m "Repository"  = "AWS-DevOps"
+          [32m+[0m[0m "Terraform"   = "true"
+          [32m+[0m[0m "Tier"        = "application"
+          [32m+[0m[0m "Type"        = "autoscaling_target"
+        }
+      [32m+[0m[0m tags_all           = {
+          [32m+[0m[0m "Account"     = "313476888312"
+          [32m+[0m[0m "Component"   = "web-application"
+          [32m+[0m[0m "CostCenter"  = "Development"
+          [32m+[0m[0m "Environment" = "development"
+          [32m+[0m[0m "ManagedBy"   = "Terraform"
+          [32m+[0m[0m "Module"      = "ecs"
+          [32m+[0m[0m "Name"        = "aws-devops-dev-autoscaling-target"
+          [32m+[0m[0m "Owner"       = "DevOps Team"
+          [32m+[0m[0m "Project"     = "AWS-DevOps"
+          [32m+[0m[0m "Region"      = "us-east-2"
+          [32m+[0m[0m "Repository"  = "AWS-DevOps"
+          [32m+[0m[0m "Terraform"   = "true"
+          [32m+[0m[0m "Tier"        = "application"
+          [32m+[0m[0m "Type"        = "autoscaling_target"
+        }
+
+      [32m+[0m[0m suspended_state (known after apply)
+    }
+
+[1m  # module.web_application.aws_ecs_service.main[0m will be updated in-place
+[0m  [33m~[0m[0m resource "aws_ecs_service" "main" {
+        id                                 = "arn:aws:ecs:us-east-2:313476888312:service/aws-devops-dev-cluster/aws-devops-dev-service"
+        name                               = "aws-devops-dev-service"
+        tags                               = {
+            "Account"     = "313476888312"
+            "Component"   = "web-application"
+            "CostCenter"  = "Development"
+            "Environment" = "development"
+            "ManagedBy"   = "Terraform"
+            "Module"      = "ecs"
+            "Name"        = "aws-devops-dev-service"
+            "Owner"       = "DevOps Team"
+            "Project"     = "AWS-DevOps"
+            "Region"      = "us-east-2"
+            "Repository"  = "AWS-DevOps"
+            "Terraform"   = "true"
+            "Tier"        = "application"
+            "Type"        = "ecs_service"
+        }
+      [33m~[0m[0m task_definition                    = "arn:aws:ecs:us-east-2:313476888312:task-definition/aws-devops-dev-task:26" -> (known after apply)
+        [90m# (16 unchanged attributes hidden)[0m[0m
+
+        [90m# (4 unchanged blocks hidden)[0m[0m
+    }
+
+[1m  # module.web_application.aws_ecs_task_definition.main[0m must be [1m[31mreplaced[0m
+[0m[31m-[0m/[32m+[0m[0m resource "aws_ecs_task_definition" "main" {
+      [33m~[0m[0m arn                      = "arn:aws:ecs:us-east-2:313476888312:task-definition/aws-devops-dev-task:26" -> (known after apply)
+      [33m~[0m[0m arn_without_revision     = "arn:aws:ecs:us-east-2:313476888312:task-definition/aws-devops-dev-task" -> (known after apply)
+      [33m~[0m[0m container_definitions    = jsonencode(
+          [33m~[0m[0m [
+              [33m~[0m[0m {
+                  [33m~[0m[0m environment      = [
+                        [90m# (1 unchanged element hidden)[0m[0m
+                        {
+                            name  = "DOMAIN_NAME"
+                            value = "dev.diatonic.ai"
+                        },
+                      [32m+[0m[0m {
+                          [32m+[0m[0m name  = "ENVIRONMENT"
+                          [32m+[0m[0m value = "dev"
+                        },
+                        {
+                            name  = "ENVIRONMENT"
+                            value = "development"
+                        },
+                        [90m# (2 unchanged elements hidden)[0m[0m
+                    ]
+                  [31m-[0m[0m mountPoints      = []
+                    name             = "aws-devops-dev-container"
+                  [31m-[0m[0m systemControls   = []
+                  [31m-[0m[0m volumesFrom      = []
+                    [90m# (6 unchanged attributes hidden)[0m[0m
+                },
+            ] [31m# forces replacement[0m[0m
+        )
+      [33m~[0m[0m enable_fault_injection   = false -> (known after apply)
+      [33m~[0m[0m id                       = "aws-devops-dev-task" -> (known after apply)
+      [33m~[0m[0m revision                 = 26 -> (known after apply)
+        tags                     = {
+            "Account"     = "313476888312"
+            "Component"   = "web-application"
+            "CostCenter"  = "Development"
+            "Environment" = "development"
+            "ManagedBy"   = "Terraform"
+            "Module"      = "ecs"
+            "Name"        = "aws-devops-dev-task-definition"
+            "Owner"       = "DevOps Team"
+            "Project"     = "AWS-DevOps"
+            "Region"      = "us-east-2"
+            "Repository"  = "AWS-DevOps"
+            "Terraform"   = "true"
+            "Tier"        = "application"
+            "Type"        = "task_definition"
+        }
+        [90m# (12 unchanged attributes hidden)[0m[0m
+    }
+
+[1mPlan:[0m 4 to add, 1 to change, 1 to destroy.
+[0m[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mResource targeting is in effect[0m
+[33m│[0m [0m
+[33m│[0m [0m[0mYou are creating a plan with the -target option, which means that the
+[33m│[0m [0mresult of this plan may not represent all of the changes requested by the
+[33m│[0m [0mcurrent configuration.
+[33m│[0m [0m
+[33m│[0m [0mThe -target option is not for routine use, and is provided only for
+[33m│[0m [0mexceptional situations such as recovering from errors or mistakes, or when
+[33m│[0m [0mTerraform specifically suggests to use it as part of an error message.
+[33m╵[0m[0m
+[90m
+─────────────────────────────────────────────────────────────────────────────[0m
+
+Note: You didn't use the -out option to save this plan, so Terraform can't
+guarantee to take exactly these actions if you run "terraform apply" now.

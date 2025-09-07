@@ -392,6 +392,121 @@ variable "health_check_interval" {
   default     = 30
 }
 
+# Additional Missing Variables
+variable "alb_name" {
+  description = "Name for the Application Load Balancer"
+  type        = string
+  default     = null
+}
+
+variable "certificate_arn_us_east_1" {
+  description = "ACM certificate ARN in us-east-1 for CloudFront"
+  type        = string
+  default     = null
+}
+
+variable "certificate_arn_us_east_2" {
+  description = "ACM certificate ARN in us-east-2 for ALB"
+  type        = string
+  default     = null
+}
+
+variable "cloudfront_distribution_id" {
+  description = "Existing CloudFront distribution ID to import"
+  type        = string
+  default     = null
+}
+
+variable "cloudfront_domain_name" {
+  description = "CloudFront distribution domain name"
+  type        = string
+  default     = null
+}
+
+variable "cluster_name" {
+  description = "Name for the ECS cluster"
+  type        = string
+  default     = null
+}
+
+variable "container_cpu" {
+  description = "CPU units for the container"
+  type        = number
+  default     = 256
+}
+
+variable "container_environment" {
+  description = "Environment variables for the container"
+  type        = map(string)
+  default     = {}
+}
+
+variable "container_memory" {
+  description = "Memory (MB) for the container"
+  type        = number
+  default     = 512
+}
+
+variable "container_name" {
+  description = "Name for the container"
+  type        = string
+  default     = null
+}
+
+variable "container_port" {
+  description = "Port the container listens on"
+  type        = number
+  default     = 80
+}
+
+variable "data_subnet_cidrs" {
+  description = "CIDR blocks for data subnets"
+  type        = list(string)
+  default     = []
+}
+
+variable "domain_name" {
+  description = "Primary domain name for the application"
+  type        = string
+  default     = null
+}
+
+variable "hosted_zone_id" {
+  description = "Route53 hosted zone ID"
+  type        = string
+  default     = null
+}
+
+variable "private_subnet_cidrs" {
+  description = "CIDR blocks for private subnets"
+  type        = list(string)
+  default     = []
+}
+
+variable "public_subnet_cidrs" {
+  description = "CIDR blocks for public subnets"
+  type        = list(string)
+  default     = []
+}
+
+variable "service_name" {
+  description = "Name for the ECS service"
+  type        = string
+  default     = null
+}
+
+variable "task_family" {
+  description = "ECS task definition family name"
+  type        = string
+  default     = null
+}
+
+variable "vpc_id" {
+  description = "Existing VPC ID to import"
+  type        = string
+  default     = null
+}
+
 variable "health_check_timeout" {
   description = "Health check timeout in seconds"
   type        = number

@@ -1,0 +1,71 @@
+{
+    "Family": "aws-devops-dev-task",
+    "Revision": 18,
+    "ContainerDefinitions": [
+        {
+            "name": "aws-devops-dev-container",
+            "image": "nginx:alpine",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "containerPort": 80,
+                    "hostPort": 80,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "environment": [
+                {
+                    "name": "AWS_DEFAULT_REGION",
+                    "value": "us-east-2"
+                },
+                {
+                    "name": "DOMAIN_NAME",
+                    "value": "dev.diatonic.ai"
+                },
+                {
+                    "name": "PROJECT_NAME",
+                    "value": "aws-devops"
+                },
+                {
+                    "name": "NGINX_PORT",
+                    "value": "80"
+                },
+                {
+                    "name": "ENVIRONMENT",
+                    "value": "development"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "secrets": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/aws-devops-dev",
+                    "awslogs-region": "us-east-2",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "healthCheck": {
+                "command": [
+                    "CMD-SHELL",
+                    "curl -f http://localhost:80/ || exit 1"
+                ],
+                "interval": 30,
+                "timeout": 5,
+                "retries": 3,
+                "startPeriod": 60
+            },
+            "systemControls": []
+        }
+    ],
+    "TaskRoleArn": "arn:aws:iam::313476888312:role/aws-devops-dev-ecs-task-role",
+    "ExecutionRoleArn": "arn:aws:iam::313476888312:role/aws-devops-dev-ecs-execution-role",
+    "NetworkMode": "awsvpc",
+    "RequiresCompatibilities": [
+        "FARGATE"
+    ],
+    "Cpu": "256",
+    "Memory": "512"
+}

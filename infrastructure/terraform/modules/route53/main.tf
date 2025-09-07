@@ -195,7 +195,7 @@ resource "aws_route53_health_check" "main" {
   request_interval                = each.value.request_interval
   search_string                   = each.value.search_string
   cloudwatch_alarm_region         = each.value.cloudwatch_alarm_region
-  insufficient_data_health_status = each.value.insufficient_data_health_status
+  # insufficient_data_health_status = each.value.insufficient_data_health_status  # Removed for basic health checks
 
   tags = merge(local.common_tags, each.value.tags, {
     Name = "${local.name_prefix}-health-check-${each.key}"

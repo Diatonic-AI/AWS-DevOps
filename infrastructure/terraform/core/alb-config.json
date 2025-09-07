@@ -1,0 +1,35 @@
+{
+    "LoadBalancerArn": "arn:aws:elasticloadbalancing:us-east-2:313476888312:loadbalancer/app/aws-devops-dev-alb/e797faf25c1ab91a",
+    "DNSName": "aws-devops-dev-alb-559404851.us-east-2.elb.amazonaws.com",
+    "CanonicalHostedZoneId": "Z3AADJGX6KTTL2",
+    "CreatedTime": "2025-08-25T08:06:11.832000+00:00",
+    "LoadBalancerName": "aws-devops-dev-alb",
+    "Scheme": "internet-facing",
+    "VpcId": "vpc-01e885e91c54deb46",
+    "State": {
+        "Code": "active"
+    },
+    "Type": "application",
+    "AvailabilityZones": [
+        {
+            "ZoneName": "us-east-2a",
+            "SubnetId": "subnet-00b8767fe1465c138",
+            "LoadBalancerAddresses": []
+        },
+        {
+            "ZoneName": "us-east-2b",
+            "SubnetId": "subnet-0241f37e8bb913cd5",
+            "LoadBalancerAddresses": []
+        },
+        {
+            "ZoneName": "us-east-2c",
+            "SubnetId": "subnet-0f84a07372535f731",
+            "LoadBalancerAddresses": []
+        }
+    ],
+    "SecurityGroups": [
+        "sg-09ad9b1143bc2d650"
+    ],
+    "IpAddressType": "ipv4",
+    "EnablePrefixForIpv6SourceNat": "off"
+}
