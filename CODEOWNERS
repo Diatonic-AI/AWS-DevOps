@@ -1,0 +1,27 @@
+# CODEOWNERS - preliminary logical ownership (update with actual GitHub handles)
+# Format: path @owner1 @owner2
+
+# Frontend application
+/apps/diatonic-ai-workbench/src/ @frontend-team
+
+# Lambda backend
+/apps/diatonic-ai-workbench/lambda/ @backend-team
+
+# Service packages (billing, etc.)
+/apps/diatonic-ai-workbench/services/ @backend-team @platform-team
+
+# Terraform primary infra
+/infrastructure/ @devops-team
+/unified-terraform/ @devops-team
+
+# Security & compliance docs
+/apps/diatonic-ai-workbench/**/*SECURITY* @security-team
+
+# Configuration & environment contracts
+/config/ @platform-team
+
+# Scripts
+/apps/diatonic-ai-workbench/scripts/ @platform-team @devops-team
+
+# Fallback
+/ @platform-team
