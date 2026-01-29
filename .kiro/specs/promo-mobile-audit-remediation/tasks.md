@@ -9,7 +9,7 @@
   - Configure Playwright for E2E testing
   - _Requirements: 19.1, 19.4_
 
-- [ ]* 1.1 Write property test for script loading idempotence
+- [ ] 1.1 Write property test for script loading idempotence
   - **Property 1: Script loading idempotence**
   - **Validates: Requirements 3.3**
 
@@ -23,7 +23,7 @@
   - Map all other domains to preview/dev with allowIndexing: false
   - _Requirements: 1.1, 1.2_
 
-- [ ]* 2.2 Write unit tests for environment detection
+- [ ] 2.2 Write unit tests for environment detection
   - Test production domain returns allowIndexing: true
   - Test preview domains return allowIndexing: false
   - Test localhost returns development mode
@@ -36,7 +36,7 @@
   - Inject noindex,nofollow meta on preview/dev
   - _Requirements: 1.1, 1.2, 1.4_
 
-- [ ]* 2.4 Write unit tests for SEO meta manager
+- [ ] 2.4 Write unit tests for SEO meta manager
   - Test correct meta tags injected for production
   - Test noindex meta tags injected for preview
   - Test canonical URL generation
@@ -72,7 +72,7 @@
   - Support mobileSrc prop for smaller mobile variant
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [ ]* 3.3 Write unit tests for LazyVideo component
+- [ ] 3.3 Write unit tests for LazyVideo component
   - Test video does not load on initial render
   - Test video loads when entering viewport
   - Test poster image displays correctly
@@ -104,11 +104,11 @@
   - Implement isLoaded method to check script status
   - _Requirements: 3.2, 3.3_
 
-- [ ]* 4.2 Write property test for script loading idempotence (if not done in 1.1)
+- [ ] 4.2 Write property test for script loading idempotence (if not done in 1.1)
   - **Property 1: Script loading idempotence**
   - **Validates: Requirements 3.3**
 
-- [ ]* 4.3 Write unit tests for DeferredScriptLoader
+- [ ] 4.3 Write unit tests for DeferredScriptLoader
   - Test script injection on first call
   - Test script not re-injected on subsequent calls
   - Test error handling for failed loads
@@ -122,7 +122,7 @@
   - Cache ready state to avoid redundant checks
   - _Requirements: 3.1, 3.2, 3.4_
 
-- [ ]* 4.5 Write unit tests for RecaptchaManager
+- [ ] 4.5 Write unit tests for RecaptchaManager
   - Test no load on page init
   - Test load on form focus
   - Test single-load guard prevents duplicates
@@ -153,7 +153,7 @@
   - Implement consent change callbacks
   - _Requirements: 4.2, 4.4_
 
-- [ ]* 5.2 Write unit tests for ConsentManager
+- [ ] 5.2 Write unit tests for ConsentManager
   - Test consent state persistence
   - Test consent change callbacks
   - Test consent denial prevents script loading
@@ -166,7 +166,7 @@
   - Load FB Pixel on marketing consent
   - _Requirements: 4.1, 4.2_
 
-- [ ]* 5.4 Write unit tests for consent-gated analytics
+- [ ] 5.4 Write unit tests for consent-gated analytics
   - Test scripts not loaded without consent
   - Test GTM loads after analytics consent
   - Test FB Pixel loads after marketing consent
@@ -218,11 +218,11 @@
   - Support loading="lazy" for below-fold images
   - _Requirements: 6.2, 6.3, 6.4_
 
-- [ ]* 7.2 Write property test for image dimension attributes
+- [ ] 7.2 Write property test for image dimension attributes
   - **Property 2: Image dimension attributes**
   - **Validates: Requirements 6.2**
 
-- [ ]* 7.3 Write unit tests for OptimizedImage
+- [ ] 7.3 Write unit tests for OptimizedImage
   - Test srcset generation
   - Test width/height attributes present
   - Test picture element with format fallbacks
@@ -292,11 +292,11 @@
   - Ensure visible focus indicators with :focus-visible styles
   - _Requirements: 8.1, 8.2, 8.4_
 
-- [ ]* 10.2 Write property test for focus indicator visibility
+- [ ] 10.2 Write property test for focus indicator visibility
   - **Property 3: Focus indicator visibility**
   - **Validates: Requirements 8.4**
 
-- [ ]* 10.3 Write unit tests for AccessibleDialog
+- [ ] 10.3 Write unit tests for AccessibleDialog
   - Test dialog has accessible name
   - Test focus management
   - Test keyboard navigation (tab order)
@@ -324,7 +324,7 @@
   - Update color tokens in design system
   - _Requirements: 9.1, 9.2_
 
-- [ ]* 11.2 Write property test for text contrast compliance
+- [ ] 11.2 Write property test for text contrast compliance
   - **Property 4: Text contrast compliance**
   - **Validates: Requirements 9.1**
 
@@ -334,7 +334,7 @@
   - Update link styles globally
   - _Requirements: 9.4_
 
-- [ ]* 11.4 Write property test for link visual indicators
+- [ ] 11.4 Write property test for link visual indicators
   - **Property 5: Link visual indicators**
   - **Validates: Requirements 9.4**
 
@@ -354,7 +354,7 @@
   - Link to main content area
   - _Requirements: 10.1, 10.4_
 
-- [ ]* 12.2 Write unit tests for SkipLink
+- [ ] 12.2 Write unit tests for SkipLink
   - Test skip link is first focusable element
   - Test skip link becomes visible on focus
   - Test skip link navigates to main content
@@ -372,7 +372,7 @@
   - Ensure single h1 per page
   - _Requirements: 10.3_
 
-- [ ]* 12.5 Write property test for heading hierarchy
+- [ ] 12.5 Write property test for heading hierarchy
   - **Property 6: Heading hierarchy**
   - **Validates: Requirements 10.3**
 
@@ -397,7 +397,7 @@
   - Reference the WebVTT file in track src
   - _Requirements: 11.1, 11.2_
 
-- [ ]* 13.3 Write unit tests for video captions
+- [ ] 13.3 Write unit tests for video captions
   - Test track element present
   - Test track src references valid file
   - Test captions display when enabled
@@ -428,7 +428,7 @@
   - Add Permissions-Policy disabling unused features
   - _Requirements: 12.1, 12.2, 12.3, 12.4_
 
-- [ ]* 15.2 Write integration tests for security headers
+- [ ] 15.2 Write integration tests for security headers
   - Test HSTS header present with correct value
   - Test X-Content-Type-Options present
   - Test Referrer-Policy present
@@ -449,7 +449,7 @@
   - Add Content-Security-Policy frame-ancestors 'none' directive
   - _Requirements: 13.1, 13.2_
 
-- [ ]* 16.2 Write integration tests for clickjacking protection
+- [ ] 16.2 Write integration tests for clickjacking protection
   - Test X-Frame-Options header present
   - Test frame-ancestors directive in CSP
   - Test iframe embedding is blocked
@@ -467,7 +467,7 @@
   - Add Cross-Origin-Opener-Policy: same-origin to customHttp.yml
   - _Requirements: 14.1_
 
-- [ ]* 17.2 Write integration tests for COOP
+- [ ] 17.2 Write integration tests for COOP
   - Test COOP header present
   - Test auth popups still work (if applicable)
   - Test cross-origin resources load correctly
@@ -490,7 +490,7 @@
   - Configure report-uri or report-to for violation reports
   - _Requirements: 15.1, 15.2, 15.3_
 
-- [ ]* 18.2 Write integration tests for CSP
+- [ ] 18.2 Write integration tests for CSP
   - Test CSP header present
   - Test allowed origins load correctly
   - Test unauthorized origins are blocked (in enforcement mode)
@@ -535,7 +535,7 @@
   - Implement reportMetric method to send to analytics
   - _Requirements: 17.1, 17.2_
 
-- [ ]* 20.3 Write unit tests for WebVitalsReporter
+- [ ] 20.3 Write unit tests for WebVitalsReporter
   - Test metrics collection initialization
   - Test metric reporting to endpoint
   - Test consent gating of RUM
@@ -564,7 +564,7 @@
   - Test routing
   - _Requirements: 20.1, 20.2, 20.3, 20.4, 20.5_
 
-- [ ]* 21.2 Run all unit and property tests
+- [ ] 21.2 Run all unit and property tests
   - Execute full test suite
   - Verify all tests pass
   - Check code coverage
