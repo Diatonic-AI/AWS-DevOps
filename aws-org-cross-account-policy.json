@@ -1,0 +1,29 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": [
+                "arn:aws:iam::824156498500:role/OrganizationAccountAccessRole",
+                "arn:aws:iam::842990485193:role/OrganizationAccountAccessRole",
+                "arn:aws:iam::916873234430:role/OrganizationAccountAccessRole",
+                "arn:aws:iam::*:role/OrganizationAccountAccessRole"
+            ],
+            "Condition": {
+                "StringEquals": {
+                    "aws:PrincipalOrgID": "o-eyf5fcwrr3"
+                }
+            }
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "organizations:DescribeOrganization",
+                "organizations:ListAccounts",
+                "organizations:DescribeAccount"
+            ],
+            "Resource": "*"
+        }
+    ]
+}

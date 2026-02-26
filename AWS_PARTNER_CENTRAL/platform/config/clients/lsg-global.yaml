@@ -1,0 +1,66 @@
+# LSG Global Knowledge Library - Client Organization Configuration
+# AWS Partner Central Client Profile
+---
+client:
+  id: "lsg-global"
+  name: "LSG Global Knowledge Library"
+  display_name: "Live Smart Growth"
+  status: active
+  created_at: "2026-01-12"
+
+# AWS Organization Mapping
+aws:
+  organization_id: "o-eyf5fcwrr3"
+  ou_id: "ou-295b-jwnuwyen"  # Client Organizations OU
+  account_id: "884537046127"  # Live Smart Growth account
+  region: "us-east-2"
+
+# Resource Tags
+tags:
+  ClientOrganization: "LSG-Global"
+  ClientAccount: "884537046127"
+  ClientOU: "ou-295b-jwnuwyen"
+  Environment: "production"
+  BillingProject: "lsg-global"
+
+# Associated Amplify Applications
+applications:
+  - id: "d37cj2a5s8sjy1"
+    name: "LSGGlobalKnowledeLib"
+    type: "amplify"
+    branches:
+      - main
+      - dev
+    backend_apis:
+      sandbox: "cmgvfmjgk5hfrjrzuthifm2zli"
+
+# Associated S3 Buckets
+storage:
+  - name: "amplify-lsgglobalknowledelib-dev-023b9-deployment"
+    purpose: "amplify_deployment"
+  - name: "amplify-lsgglobalknowledg-lsginvoicesbucket283707c-ddhx6lmilgvr"
+    purpose: "invoices"
+
+# Partner Central Configuration
+partner_central:
+  enabled: true
+  customer_name: "Live Smart Growth"
+  industry: "Education & Training"
+  engagement_type: "existing_customer"
+  opportunity_type: "expansion"
+
+# Billing Configuration
+billing:
+  plan: "foundation"
+  billing_cycle: "monthly"
+  cost_allocation_tags:
+    - ClientOrganization
+    - BillingProject
+    - Environment
+
+# Contact Information
+contacts:
+  primary:
+    name: "TBD"
+    email: "admin@livesmartgrowth.com"
+    role: "Account Owner"

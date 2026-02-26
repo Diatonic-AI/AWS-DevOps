@@ -1,0 +1,74 @@
+name: Terraform Apply
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'infra/terraform/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - stage
+          - prod
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  TF_VERSION: "1.6.6"
+  AWS_REGION: us-east-1
+
+jobs:
+  apply:
+    name: Apply - ${{ matrix.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ matrix.environment }}
+    strategy:
+      fail-fast: true
+      max-parallel: 1
+      matrix:
+        environment:
+          - ${{ inputs.environment || 'dev' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        working-directory: infra/terraform/envs/${{ matrix.environment }}
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: infra/terraform/envs/${{ matrix.environment }}
+        run: terraform plan -no-color -out=tfplan
+
+      - name: Terraform Apply
+        working-directory: infra/terraform/envs/${{ matrix.environment }}
+        run: terraform apply -no-color -auto-approve tfplan
+
+      - name: Save Outputs
+        working-directory: infra/terraform/envs/${{ matrix.environment }}
+        run: terraform output -json > outputs.json
+
+      - name: Upload Outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-outputs-${{ matrix.environment }}
+          path: infra/terraform/envs/${{ matrix.environment }}/outputs.json

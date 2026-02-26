@@ -1,0 +1,292 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Harness CCM Cross-Account Role with comprehensive permissions for cost management, inventory, and optimization'
+
+Parameters:
+  ExternalId:
+    Type: String
+    Description: 'External ID for cross-account role assumption'
+    Default: 'harness-ccm-external-id'
+  
+  HarnessAccountId:
+    Type: String
+    Description: 'Harness AWS Account ID'
+    Default: '759984737373'
+
+Resources:
+  # S3 Bucket Policy for Harness to read CUR data
+  HarnessCCMBucketPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: 'HarnessCCMBucketPolicy'
+      Description: 'Policy for Harness to access S3 bucket containing CUR data'
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - 's3:GetBucketLocation'
+              - 's3:ListBucket'
+            Resource: 
+              - !Sub 'arn:aws:s3:::harness-ccm-cur-${AWS::AccountId}'
+          - Effect: Allow
+            Action:
+              - 's3:GetObject'
+            Resource: 
+              - !Sub 'arn:aws:s3:::harness-ccm-cur-${AWS::AccountId}/*'
+
+  # Cost Visibility Policy
+  HarnessCostVisibilityPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: 'HarnessCostVisibilityPolicy'
+      Description: 'Policy for Harness cost visibility features'
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'cur:DescribeReportDefinitions'
+              - 'organizations:Describe*'
+              - 'organizations:List*'
+              - 'ce:GetDimensionValues'
+              - 'ce:GetReservationCoverage'
+              - 'ce:GetReservationPurchaseRecommendation'
+              - 'ce:GetReservationUtilization'
+              - 'ce:GetSavingsPlansUtilization'
+              - 'ce:GetSavingsPlansCoverage'
+              - 'ce:GetCostAndUsage'
+              - 'ce:GetUsageReport'
+              - 'ce:GetSavingsPlansUtilizationDetails'
+              - 'iam:SimulatePrincipalPolicy'
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - 'iam:SimulatePrincipalPolicy'
+              - 'iam:GetRole'
+              - 'iam:ListRolePolicies'
+              - 'iam:ListAttachedRolePolicies'
+              - 'iam:GetRolePolicy'
+            Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/HarnessCCMRole'
+          - Effect: Allow
+            Action:
+              - 'iam:GetPolicy'
+              - 'iam:GetPolicyVersion'
+            Resource:
+              - !Sub 'arn:aws:iam::${AWS::AccountId}:policy/HarnessCCMBucketPolicy'
+              - !Sub 'arn:aws:iam::${AWS::AccountId}:policy/HarnessCostVisibilityPolicy'
+              - !Sub 'arn:aws:iam::${AWS::AccountId}:policy/HarnessInventoryPolicy'
+              - !Sub 'arn:aws:iam::${AWS::AccountId}:policy/HarnessOptimizationPolicy'
+              - !Sub 'arn:aws:iam::${AWS::AccountId}:policy/HarnessGovernancePolicy'
+              - !Sub 'arn:aws:iam::${AWS::AccountId}:policy/HarnessCommitmentPolicy'
+              - !Sub 'arn:aws:iam::${AWS::AccountId}:policy/HarnessInternalPolicy'
+
+  # Resource Inventory Management Policy
+  HarnessInventoryPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: 'HarnessInventoryPolicy'
+      Description: 'Policy for Harness resource inventory management'
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'ecs:ListClusters*'
+              - 'ecs:DescribeClusters'
+              - 'ecs:ListServices'
+              - 'ecs:DescribeServices'
+              - 'ecs:DescribeContainerInstances'
+              - 'ecs:ListTasks'
+              - 'ecs:ListContainerInstances'
+              - 'ecs:DescribeTasks'
+              - 'ecs:DescribeTaskDefinition'
+              - 'ecs:UpdateService'
+              - 'ec2:DescribeInstances*'
+              - 'ec2:DescribeRegions'
+              - 'ec2:DescribeVolumes'
+              - 'ec2:DescribeSnapshots'
+              - 'cloudwatch:GetMetricData'
+              - 'rds:DescribeDBSnapshots'
+              - 'rds:DescribeDBInstances'
+              - 'rds:DescribeDBClusters'
+              - 'rds:DescribeDBSnapshotAttributes'
+              - 'ce:GetRightsizingRecommendation'
+            Resource: '*'
+
+  # AutoStopping Optimization Policy
+  HarnessOptimizationPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: 'HarnessOptimizationPolicy'
+      Description: 'Policy for Harness AutoStopping and optimization features'
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'elasticloadbalancing:*'
+              - 'ec2:StopInstances'
+              - 'ec2:StartInstances'
+              - 'ec2:TerminateInstances'
+              - 'ec2:Describe*'
+              - 'ec2:CreateTags'
+              - 'ec2:CreateImage'
+              - 'ec2:DeregisterImage'
+              - 'ec2:DeleteSnapshot'
+              - 'ec2:RequestSpotInstances'
+              - 'ec2:RunInstances'
+              - 'ec2:ModifyInstanceAttribute'
+              - 'ec2:AllocateAddress'
+              - 'ec2:AssociateAddress'
+              - 'ec2:DisassociateAddress'
+              - 'ec2:ReleaseAddress'
+              - 'autoscaling:*'
+              - 'iam:CreateServiceLinkedRole'
+              - 'iam:ListInstanceProfiles'
+              - 'iam:ListInstanceProfilesForRole'
+              - 'iam:AddRoleToInstanceProfile'
+              - 'iam:PassRole'
+              - 'iam:GetUser'
+              - 'iam:ListRoles'
+              - 'acm:ListCertificates'
+              - 'lambda:*'
+              - 'cloudwatch:ListMetrics'
+              - 'cloudwatch:GetMetricData'
+              - 'cloudwatch:GetMetricStatistics'
+              - 'route53:*'
+              - 'rds:DescribeDBClusters'
+              - 'rds:DescribeDBInstances'
+              - 'rds:ListTagsForResource'
+              - 'rds:AddTagsToResource'
+              - 'rds:RemoveTagsFromResource'
+              - 'rds:ModifyDBInstance'
+              - 'rds:StartDBCluster'
+              - 'rds:StartDBInstance'
+              - 'rds:StopDBCluster'
+              - 'rds:StopDBInstance'
+              - 's3:ListBucket'
+              - 's3:GetObject'
+              - 's3:ListAllMyBuckets'
+              - 's3:GetBucketLocation'
+              - 'secretsmanager:GetSecretValue'
+            Resource: '*'
+
+  # Cloud Governance Policy
+  HarnessGovernancePolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: 'HarnessGovernancePolicy'
+      Description: 'Policy for Harness cloud governance features'
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'ec2:Describe*'
+              - 'rds:Describe*'
+              - 's3:List*'
+              - 's3:Get*'
+              - 'ebs:Describe*'
+              - 'tag:GetResources'
+              - 'tag:TagResources'
+              - 'tag:UntagResources'
+            Resource: '*'
+
+  # Harness Internal Operations Policy
+  HarnessInternalPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: 'HarnessInternalPolicy'
+      Description: 'Policy for Harness internal operations and data storage'
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - 's3:PutObject'
+              - 's3:PutObjectAcl'
+              - 's3:GetObject'
+              - 's3:GetObjectAcl'
+              - 's3:DeleteObject'
+              - 's3:ListBucket'
+            Resource:
+              - 'arn:aws:s3:::ce-customer-billing-data-prod-1*'
+              - 'arn:aws:s3:::ce-customer-billing-data-prod-1*/*'
+
+  # Commitment Orchestrator Policy
+  HarnessCommitmentPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: 'HarnessCommitmentPolicy'
+      Description: 'Policy for Harness commitment orchestration'
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'ec2:PurchaseReservedInstancesOffering'
+              - 'ec2:GetReservedInstancesExchangeQuote'
+              - 'ec2:DescribeInstanceTypeOfferings'
+              - 'ec2:AcceptReservedInstancesExchangeQuote'
+              - 'ec2:DescribeReservedInstancesModifications'
+              - 'ec2:ModifyReservedInstances'
+              - 'ec2:DescribeReservedInstancesOfferings'
+              - 'ec2:DescribeReservedInstances'
+              - 'savingsplans:DescribeSavingsPlans'
+              - 'savingsplans:DescribeSavingsPlansOfferings'
+              - 'savingsplans:CreateSavingsPlan'
+              - 'ce:GetSavingsPlansUtilization'
+              - 'ce:GetReservationUtilization'
+              - 'ce:GetSavingsPlansCoverage'
+              - 'ce:GetReservationCoverage'
+              - 'ce:GetCostAndUsage'
+            Resource: '*'
+
+  # Main Harness CCM Cross-Account Role
+  HarnessCCMRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: 'HarnessCCMRole'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${HarnessAccountId}:root'
+            Action: 'sts:AssumeRole'
+            Condition:
+              StringEquals:
+                'sts:ExternalId': !Ref ExternalId
+      ManagedPolicyArns:
+        - !Ref HarnessCCMBucketPolicy
+        - !Ref HarnessCostVisibilityPolicy
+        - !Ref HarnessInventoryPolicy
+        - !Ref HarnessOptimizationPolicy
+        - !Ref HarnessGovernancePolicy
+        - !Ref HarnessCommitmentPolicy
+        - !Ref HarnessInternalPolicy
+
+Outputs:
+  CrossAccountRoleArn:
+    Description: 'ARN of the Harness CCM cross-account role'
+    Value: !GetAtt HarnessCCMRole.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-HarnessCCMRoleArn'
+  
+  ExternalId:
+    Description: 'External ID for role assumption'
+    Value: !Ref ExternalId
+    Export:
+      Name: !Sub '${AWS::StackName}-ExternalId'
+  
+  S3BucketName:
+    Description: 'S3 bucket name for CUR data'
+    Value: !Sub 'harness-ccm-cur-${AWS::AccountId}'
+    Export:
+      Name: !Sub '${AWS::StackName}-S3BucketName'
+  
+  CURReportName:
+    Description: 'Cost and Usage Report name'
+    Value: 'harness-ccm-cur-report'
+    Export:
+      Name: !Sub '${AWS::StackName}-CURReportName'

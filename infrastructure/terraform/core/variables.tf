@@ -631,3 +631,28 @@ variable "ttl_default" {
   type        = number
   default     = 300
 }
+
+# AI Nexus Workbench Configuration
+variable "enable_cdn" {
+  description = "Enable CloudFront CDN for S3 uploads"
+  type        = bool
+  default     = false
+}
+
+variable "create_custom_domain" {
+  description = "Create custom domain for API Gateway"
+  type        = bool
+  default     = false
+}
+
+variable "ssl_certificate_arn" {
+  description = "SSL certificate ARN for custom domain"
+  type        = string
+  default     = null
+}
+
+variable "route53_zone_id" {
+  description = "Route53 hosted zone ID for custom domain"
+  type        = string
+  default     = null
+}

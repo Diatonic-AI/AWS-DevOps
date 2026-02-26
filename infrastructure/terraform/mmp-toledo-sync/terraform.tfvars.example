@@ -1,0 +1,110 @@
+# MMP Toledo Sync - Terraform Variables Example
+# Copy this to terraform.tfvars and fill in your values
+# IMPORTANT: Never commit terraform.tfvars with secrets to git!
+
+# ============================================================================
+# PROJECT CONFIGURATION
+# ============================================================================
+
+project_name = "mmp-toledo"
+environment  = "dev"  # Options: dev, staging, prod
+aws_region   = "us-east-2"
+aws_profile  = "default"
+
+# ============================================================================
+# SUPABASE CONFIGURATION
+# ============================================================================
+
+# Your Supabase project URL
+supabase_url = "https://jpcdwbkeivtmweoacbsh.supabase.co"
+
+# Supabase anonymous/publishable API key
+# Get from: Supabase Dashboard → Settings → API → anon/public
+supabase_anon_key = "sb_publishable_d40P6CytE7W2RW01I1lzfg_fQTfJkTW"
+
+# Supabase service role key (optional, for admin operations)
+# Get from: Supabase Dashboard → Settings → API → service_role
+# supabase_service_role_key = "eyJ..."
+
+# Edge Function webhook URL
+supabase_webhook_url = "https://jpcdwbkeivtmweoacbsh.functions.supabase.co/mmp-toledo-sync"
+
+# ============================================================================
+# DYNAMODB TABLE CONFIGURATION
+# ============================================================================
+
+# Enable sync for specific tables
+enable_leads_table_sync = true
+enable_otp_table_sync   = true
+
+# Table names (must exist and have streams enabled)
+leads_table_name = "mmp-toledo-leads-prod"
+otp_table_name   = "mmp-toledo-otp-prod"
+
+# Set to true if tables need to be created
+create_dynamodb_tables = false
+
+# Additional tables to sync (optional)
+# additional_dynamodb_streams = {
+#   "firespring-actions" = {
+#     stream_arn     = "arn:aws:dynamodb:us-east-2:123456789012:table/firespring-backdoor-actions-dev/stream/2024-01-01T00:00:00.000"
+#     filter_pattern = null
+#   }
+# }
+
+# ============================================================================
+# LAMBDA CONFIGURATION (Cost Optimized Defaults)
+# ============================================================================
+
+# Minimum memory - sufficient for HTTP webhook calls
+lambda_memory_size = 128
+
+# Timeout for processing batches
+lambda_timeout = 30
+
+# Limit concurrent executions to control costs
+reserved_concurrent_executions = 5
+
+# ============================================================================
+# BATCH PROCESSING (Cost Optimized)
+# ============================================================================
+
+# Process multiple records per invocation
+batch_size = 10
+
+# Wait up to 5 seconds to collect records
+batching_window_seconds = 5
+
+# ============================================================================
+# RETRY CONFIGURATION
+# ============================================================================
+
+max_retries        = 3
+retry_delay_ms     = 1000
+stream_max_retries = 2
+
+# ============================================================================
+# LOGGING (Cost Optimized)
+# ============================================================================
+
+# Short retention minimizes CloudWatch costs
+log_retention_days = 7
+
+# ============================================================================
+# MONITORING (Disabled by default for cost savings)
+# ============================================================================
+
+enable_monitoring = false
+# alarm_sns_topic_arn = "arn:aws:sns:us-east-2:123456789012:alerts"
+
+# ============================================================================
+# TAGS
+# ============================================================================
+
+default_tags = {
+  Project     = "MMP-Toledo"
+  ManagedBy   = "Terraform"
+  Component   = "dynamodb-supabase-sync"
+  CostCenter  = "mmp-toledo"
+  Owner       = "DevOps"
+}

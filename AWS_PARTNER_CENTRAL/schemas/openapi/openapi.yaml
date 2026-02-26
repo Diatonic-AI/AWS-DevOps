@@ -1,0 +1,52 @@
+openapi: 3.0.3
+info:
+  title: Partner Central Wrapper Platform API
+  version: 1.1.0
+servers:
+  - url: https://api.example.com
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Tenant:
+      type: object
+      required: [id, slug, name, plan, status]
+      properties:
+        id: { type: string, format: uuid }
+        slug: { type: string }
+        name: { type: string }
+        plan: { type: string }
+        status: { type: string }
+    CreateOpportunityRequest:
+      type: object
+      required: [ticketId, payload]
+      properties:
+        ticketId: { type: string }
+        payload: { type: object }
+paths:
+  /v1/tenants:
+    get:
+      summary: List tenants
+      responses:
+        "200":
+          description: OK
+  /v1/partner-central/opportunities:
+    post:
+      summary: Create Partner Central opportunity (approval-gated)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateOpportunityRequest" }
+      responses:
+        "202": { description: Accepted (queued) }
+  /v1/marketplace/meter-usage:
+    post:
+      summary: Emit metering record (approval-gated / plan-gated)
+      responses:
+        "202": { description: Accepted (queued) }

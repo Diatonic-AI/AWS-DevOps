@@ -1,0 +1,83 @@
+# Minute Man Press Toledo - Client Organization Configuration
+# AWS Partner Central Client Profile
+---
+client:
+  id: "mmp-toledo"
+  name: "Minute Man Press Toledo"
+  display_name: "MMP Toledo"
+  status: active
+  created_at: "2025-12-24"
+  parent_organization: "Steve Heaney Investments"
+
+# AWS Organization Mapping
+aws:
+  organization_id: "o-eyf5fcwrr3"
+  ou_id: "ou-295b-jwnuwyen"  # Client Organizations OU
+  account_id: "455303857245"  # Minute Man Press Toledo account
+  parent_account_id: "819087822699"  # Steve Heaney Investments
+  region: "us-east-2"
+
+# Resource Tags
+tags:
+  ClientOrganization: "MMP-Toledo"
+  ClientAccount: "455303857245"
+  ClientOU: "ou-295b-jwnuwyen"
+  ClientName: "Minute Man Press Toledo"
+  Environment: "production"
+  BillingProject: "mmp-toledo"
+
+# Associated Amplify Applications
+applications:
+  - id: "dh9lr01l0snay"
+    name: "mmp-toledo-funnel-amplify"
+    type: "amplify"
+    branches:
+      - main
+      - develop
+    backend_apis:
+      main: "sqiqbtbugvfabolqwdt4rz3dla"
+      develop: "h6a66mxndnhc7h3o4kldil67oa"
+
+# Associated S3 Buckets
+storage:
+  - name: "mmp-toledo-billing-portal"
+    purpose: "billing_portal"
+  - name: "mmp-toledo-shared-media"
+    purpose: "media_storage"
+  - name: "mmp-toledo-shared-media-dev"
+    purpose: "media_storage_dev"
+  - name: "mmp-toledo-shared-media-develop"
+    purpose: "media_storage_develop"
+
+# Firespring Backend Integration
+integrations:
+  firespring:
+    enabled: true
+    buckets:
+      - "firespring-backdoor-data-30511389"
+      - "firespring-backdoor-lambda-30511389"
+    purpose: "ecommerce_backend"
+
+# Partner Central Configuration
+partner_central:
+  enabled: true
+  customer_name: "Minute Man Press Toledo"
+  industry: "Printing & Graphics"
+  engagement_type: "existing_customer"
+  opportunity_type: "expansion"
+
+# Billing Configuration
+billing:
+  plan: "scale"
+  billing_cycle: "monthly"
+  cost_allocation_tags:
+    - ClientOrganization
+    - BillingProject
+    - Environment
+
+# Contact Information
+contacts:
+  primary:
+    name: "Steve Heaney"
+    email: "steve@mmptoledooh.com"
+    role: "Account Owner"

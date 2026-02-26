@@ -1,0 +1,303 @@
+# Partner Central Wrapper Platform - GraphQL Schema
+
+scalar DateTime
+scalar JSON
+scalar UUID
+
+# Enums
+enum TenantStatus {
+  ACTIVE
+  SUSPENDED
+  PENDING_DELETION
+  PROVISIONING
+}
+
+enum PlanType {
+  FOUNDATION
+  SCALE
+  ENTERPRISE
+}
+
+enum ConnectorKind {
+  PARTNER_CENTRAL
+  MARKETPLACE
+  CRM
+  MARKETING
+  FINANCE
+}
+
+enum ConnectorStatus {
+  ENABLED
+  DISABLED
+  ERROR
+}
+
+enum IngestionMode {
+  BATCH
+  STREAMING
+  HYBRID
+}
+
+enum IngestionRunStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+enum OpportunityLifecycleStage {
+  PROSPECT
+  QUALIFIED
+  PROPOSAL
+  NEGOTIATION
+  CLOSED_WON
+  CLOSED_LOST
+}
+
+enum EngagementStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  REJECTED
+}
+
+# Types
+type Tenant {
+  id: UUID!
+  slug: String!
+  name: String!
+  plan: PlanType!
+  status: TenantStatus!
+  createdAt: DateTime!
+  users(limit: Int = 50, offset: Int = 0): [User!]!
+  connectors: [Connector!]!
+  settings: JSON
+}
+
+type User {
+  id: UUID!
+  tenantId: UUID!
+  email: String!
+  displayName: String
+  status: String!
+  roles: [Role!]!
+  createdAt: DateTime!
+}
+
+type Role {
+  id: UUID!
+  tenantId: UUID!
+  name: String!
+  permissions: [String!]!
+}
+
+type Connector {
+  id: UUID!
+  tenantId: UUID!
+  name: String!
+  kind: ConnectorKind!
+  status: ConnectorStatus!
+  config: JSON
+  lastSyncAt: DateTime
+  createdAt: DateTime!
+  recentRuns(limit: Int = 10): [IngestionRun!]!
+}
+
+type IngestionRun {
+  id: UUID!
+  tenantId: UUID!
+  connectorId: UUID!
+  entity: String!
+  mode: IngestionMode!
+  status: IngestionRunStatus!
+  startedAt: DateTime!
+  endedAt: DateTime
+  stats: IngestionStats
+}
+
+type IngestionStats {
+  recordsProcessed: Int!
+  recordsCreated: Int!
+  recordsUpdated: Int!
+  recordsFailed: Int!
+  durationSeconds: Float
+}
+
+type Opportunity {
+  id: UUID!
+  tenantId: UUID!
+  pcOpportunityId: String!
+  customerCompanyName: String
+  expectedRevenueUsd: Float
+  closeDate: DateTime
+  lifecycleStage: OpportunityLifecycleStage!
+  engagementStatus: EngagementStatus
+  partnerSolutionId: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  payload: JSON!
+}
+
+type MarketplaceProduct {
+  id: UUID!
+  tenantId: UUID!
+  entityId: String!
+  productCode: String
+  title: String
+  pricingModel: String
+  status: String
+  updatedAt: DateTime!
+}
+
+type Subscription {
+  id: UUID!
+  tenantId: UUID!
+  productId: UUID!
+  subscriberAccountId: String!
+  status: String!
+  startDate: DateTime!
+  endDate: DateTime
+}
+
+type MeterUsage {
+  id: UUID!
+  tenantId: UUID!
+  dimension: String!
+  quantity: Int!
+  usageTime: DateTime!
+  correlationId: String
+  createdAt: DateTime!
+}
+
+type AuditLogEntry {
+  id: UUID!
+  tenantId: UUID!
+  actorUserId: UUID
+  action: String!
+  targetType: String
+  targetId: String
+  ticketId: String
+  metadata: JSON
+  createdAt: DateTime!
+}
+
+type PipelineMetrics {
+  totalOpportunities: Int!
+  totalPipelineValueUsd: Float!
+  wonOpportunities: Int!
+  lostOpportunities: Int!
+  winRate: Float!
+  avgDealSizeUsd: Float!
+  byStage: [StageMetrics!]!
+}
+
+type StageMetrics {
+  stage: OpportunityLifecycleStage!
+  count: Int!
+  valueUsd: Float!
+}
+
+# Inputs
+input CreateOpportunityInput {
+  ticketId: String!
+  payload: JSON!
+}
+
+input UpdateOpportunityInput {
+  id: UUID!
+  ticketId: String
+  payload: JSON!
+}
+
+input EmitMeterUsageInput {
+  dimension: String!
+  quantity: Int!
+  usageTime: DateTime!
+  correlationId: String
+}
+
+input TriggerSyncInput {
+  connectorId: UUID!
+  entity: String
+  mode: IngestionMode
+}
+
+# Queries
+type Query {
+  # Tenant queries
+  currentTenant: Tenant!
+  tenants(limit: Int = 50, offset: Int = 0): [Tenant!]!
+  tenant(id: UUID!): Tenant
+
+  # User queries
+  currentUser: User!
+  users(tenantId: UUID!, limit: Int = 50, offset: Int = 0): [User!]!
+
+  # Connector queries
+  connectors(tenantId: UUID!): [Connector!]!
+  connector(id: UUID!): Connector
+  ingestionRuns(connectorId: UUID!, limit: Int = 20): [IngestionRun!]!
+
+  # Partner Central queries
+  opportunities(
+    tenantId: UUID!
+    stage: OpportunityLifecycleStage
+    limit: Int = 50
+    offset: Int = 0
+  ): [Opportunity!]!
+  opportunity(id: UUID!): Opportunity
+  pipelineMetrics(tenantId: UUID!): PipelineMetrics!
+
+  # Marketplace queries
+  products(tenantId: UUID!): [MarketplaceProduct!]!
+  product(id: UUID!): MarketplaceProduct
+  subscriptions(tenantId: UUID!): [Subscription!]!
+  meterUsage(tenantId: UUID!, dimension: String, limit: Int = 100): [MeterUsage!]!
+
+  # Audit queries
+  auditLog(
+    tenantId: UUID!
+    action: String
+    targetType: String
+    limit: Int = 100
+    offset: Int = 0
+  ): [AuditLogEntry!]!
+}
+
+# Mutations
+type Mutation {
+  # Opportunity mutations (approval-gated)
+  createOpportunity(tenantId: UUID!, input: CreateOpportunityInput!): UUID!
+  updateOpportunity(input: UpdateOpportunityInput!): Boolean!
+  startEngagement(opportunityId: UUID!, ticketId: String!): UUID!
+
+  # Marketplace mutations
+  emitMeterUsage(tenantId: UUID!, input: EmitMeterUsageInput!): UUID!
+
+  # Connector mutations
+  triggerSync(input: TriggerSyncInput!): UUID!
+  enableConnector(id: UUID!): Boolean!
+  disableConnector(id: UUID!): Boolean!
+}
+
+# Subscriptions (real-time updates)
+type SubscriptionType {
+  # Real-time opportunity updates
+  opportunityUpdated(tenantId: UUID!): Opportunity!
+
+  # Ingestion run status changes
+  ingestionRunUpdated(connectorId: UUID!): IngestionRun!
+
+  # Alert notifications
+  alertReceived(tenantId: UUID!): Alert!
+}
+
+type Alert {
+  id: UUID!
+  tenantId: UUID!
+  severity: String!
+  title: String!
+  message: String!
+  source: String!
+  createdAt: DateTime!
+}

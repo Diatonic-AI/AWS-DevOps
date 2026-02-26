@@ -1,0 +1,92 @@
+---
+# Observability agent role - CloudWatch agent and X-Ray daemon
+
+- name: Install CloudWatch agent
+  block:
+    - name: Download CloudWatch agent
+      get_url:
+        url: "https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb"
+        dest: /tmp/amazon-cloudwatch-agent.deb
+        mode: '0644'
+
+    - name: Install CloudWatch agent package
+      apt:
+        deb: /tmp/amazon-cloudwatch-agent.deb
+        state: present
+
+    - name: Configure CloudWatch agent
+      copy:
+        content: |
+          {
+            "agent": {
+              "metrics_collection_interval": 60,
+              "logfile": "/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log"
+            },
+            "logs": {
+              "logs_collected": {
+                "files": {
+                  "collect_list": [
+                    {
+                      "file_path": "/var/log/pcw/*.log",
+                      "log_group_name": "/pcw/{{ environment }}/application",
+                      "log_stream_name": "{instance_id}",
+                      "retention_in_days": {{ log_retention_days }}
+                    }
+                  ]
+                }
+              }
+            },
+            "metrics": {
+              "namespace": "PCW/{{ environment }}",
+              "metrics_collected": {
+                "cpu": {
+                  "measurement": ["cpu_usage_idle", "cpu_usage_user", "cpu_usage_system"]
+                },
+                "disk": {
+                  "measurement": ["used_percent"],
+                  "resources": ["/"]
+                },
+                "mem": {
+                  "measurement": ["mem_used_percent"]
+                }
+              }
+            }
+          }
+        dest: /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+        mode: '0644'
+      notify: restart cloudwatch agent
+
+    - name: Start CloudWatch agent
+      service:
+        name: amazon-cloudwatch-agent
+        state: started
+        enabled: true
+  when: cloudwatch_agent_enabled | default(true)
+  tags: [cloudwatch]
+
+- name: Install X-Ray daemon
+  block:
+    - name: Download X-Ray daemon
+      get_url:
+        url: "https://s3.us-east-2.amazonaws.com/aws-xray-assets.us-east-2/xray-daemon/aws-xray-daemon-3.x.deb"
+        dest: /tmp/aws-xray-daemon.deb
+        mode: '0644'
+
+    - name: Install X-Ray daemon package
+      apt:
+        deb: /tmp/aws-xray-daemon.deb
+        state: present
+
+    - name: Start X-Ray daemon
+      service:
+        name: xray
+        state: started
+        enabled: true
+  when: xray_daemon_enabled | default(true)
+  tags: [xray]
+
+handlers:
+  - name: restart cloudwatch agent
+    service:
+      name: amazon-cloudwatch-agent
+      state: restarted

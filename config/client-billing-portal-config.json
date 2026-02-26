@@ -1,0 +1,29 @@
+{
+  "masterAccountId": "313476888312",
+  "region": "us-east-1",
+  "costAllocationTags": [
+    "ClientOrganization",
+    "BillingProject",
+    "ClientAccount",
+    "ClientName",
+    "Environment"
+  ],
+  "iamRole": "arn:aws:iam::313476888312:role/ClientBillingPortal-CostExplorer",
+  "dynamodbTable": "client-billing-data",
+  "s3Bucket": "client-billing-reports-313476888312",
+  "clients": {
+    "mmp-toledo": {
+      "clientId": "mmp-toledo",
+      "clientName": "Minute Man Press Toledo",
+      "accountId": "455303857245",
+      "organizationTag": "MMP-Toledo",
+      "billingProjects": ["mmp-toledo", "mmp-toledo-firespring"],
+      "contactEmail": "aws+minute-man-press@dacvisuals.com",
+      "paymentProcessor": "stripe"
+    }
+  },
+  "stripe": {
+    "apiKeySecretName": "client-billing/stripe-api-key",
+    "webhookSecretName": "client-billing/stripe-webhook-secret"
+  }
+}

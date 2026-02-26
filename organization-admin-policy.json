@@ -1,0 +1,93 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "OrganizationFullAccess",
+            "Effect": "Allow",
+            "Action": [
+                "organizations:*"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "AccountManagement",
+            "Effect": "Allow",
+            "Action": [
+                "account:*"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "IAMManagement",
+            "Effect": "Allow",
+            "Action": [
+                "iam:*"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "STSAccess",
+            "Effect": "Allow",
+            "Action": [
+                "sts:*"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "BillingAccess",
+            "Effect": "Allow",
+            "Action": [
+                "billing:*",
+                "ce:*",
+                "budgets:*",
+                "aws-portal:*"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "ServiceControlPolicyAccess",
+            "Effect": "Allow",
+            "Action": [
+                "organizations:ListPolicies",
+                "organizations:CreatePolicy",
+                "organizations:UpdatePolicy",
+                "organizations:DeletePolicy",
+                "organizations:AttachPolicy",
+                "organizations:DetachPolicy",
+                "organizations:ListPoliciesForTarget",
+                "organizations:ListTargetsForPolicy"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "CrossAccountRoleAssumption",
+            "Effect": "Allow",
+            "Action": [
+                "sts:AssumeRole"
+            ],
+            "Resource": [
+                "arn:aws:iam::*:role/OrganizationAccountAccessRole",
+                "arn:aws:iam::*:role/DiatonicAdminRole",
+                "arn:aws:iam::*:role/*Admin*",
+                "arn:aws:iam::*:role/*CrossAccount*"
+            ]
+        },
+        {
+            "Sid": "CloudFormationAccess",
+            "Effect": "Allow",
+            "Action": [
+                "cloudformation:*"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "CloudWatchAccess",
+            "Effect": "Allow",
+            "Action": [
+                "cloudwatch:*",
+                "logs:*"
+            ],
+            "Resource": "*"
+        }
+    ]
+}

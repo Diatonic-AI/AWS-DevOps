@@ -1,0 +1,31 @@
+{
+    "User": {
+        "Path": "/",
+        "UserName": "obsidian-plugin-dynamodb",
+        "UserId": "AIDAUR7FNW34BCLWVJJPO",
+        "Arn": "arn:aws:iam::313476888312:user/obsidian-plugin-dynamodb",
+        "CreateDate": "2025-09-27T17:35:43+00:00",
+        "Tags": [
+            {
+                "Key": "Project",
+                "Value": "obsidian-integration"
+            },
+            {
+                "Key": "Owner",
+                "Value": "daclab-ai"
+            },
+            {
+                "Key": "Env",
+                "Value": "production"
+            },
+            {
+                "Key": "Service",
+                "Value": "obsidian-plugin"
+            },
+            {
+                "Key": "CostCenter",
+                "Value": "development"
+            }
+        ]
+    }
+}

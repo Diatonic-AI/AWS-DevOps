@@ -1,0 +1,30 @@
+apiVersion: "pcw.platform/v1"
+kind: "Module"
+metadata:
+  name: "connector.partner-central.opportunities"
+  version: "0.1.0"
+  description: "Ingest + action APIs for Partner Central opportunities"
+spec:
+  type: "connector"
+  tenancy:
+    compatible_models: ["pooled_compute_isolated_data", "siloed"]
+  permissions:
+    aws:
+      - "partnercentral:CreateOpportunity"
+      - "partnercentral:AssociateOpportunity"
+      - "partnercentral:StartEngagementFromOpportunity"
+      - "partnercentral:GetOpportunity"
+      - "partnercentral:ListOpportunities"
+  produces:
+    datasets:
+      - "bronze/partnercentral/opportunities/"
+      - "silver/partnercentral/opportunities/"
+      - "gold/marts/pipeline/"
+  dependsOn:
+    - "core.eventing"
+    - "core.secrets"
+  costHints:
+    expected_monthly_usd_range: "50-250"
+  guardrails:
+    requires_action_approval: true
+    pii_policy: "standard_redaction_v1"

@@ -1,0 +1,96 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1a73e8', 'secondaryColor': '#34a853', 'tertiaryColor': '#fbbc04'}}}%%
+
+flowchart TB
+    subgraph Sources["Data Sources"]
+        PC[Partner Central API]
+        MP[Marketplace APIs]
+        CRM[CRM Systems]
+        EXT[External Data]
+    end
+
+    subgraph Ingestion["Ingestion Layer"]
+        CONN[Connectors]
+        STREAM[Kinesis Stream]
+        BATCH[Batch Jobs]
+    end
+
+    subgraph Bronze["Bronze Layer - Raw"]
+        direction TB
+        B1["📁 bronze/partnercentral/opportunities/"]
+        B2["📁 bronze/partnercentral/leads/"]
+        B3["📁 bronze/marketplace/products/"]
+        B4["📁 bronze/marketplace/subscriptions/"]
+        B_META["Metadata: timestamp, source, run_id"]
+    end
+
+    subgraph DQ["Data Quality Gates"]
+        SCHEMA[Schema Validation]
+        ANOMALY[Anomaly Detection]
+        DLQ_DQ[DLQ: Failed Records]
+    end
+
+    subgraph Silver["Silver Layer - Normalized"]
+        direction TB
+        S1["📊 Opportunities Entity"]
+        S2["📊 Leads Entity"]
+        S3["📊 Products Entity"]
+        S4["📊 Subscriptions Entity"]
+        S_FEAT["Features: dedupe, type-safe, CDC tracking"]
+    end
+
+    subgraph Gold["Gold Layer - Analytics"]
+        direction TB
+        G1["📈 pipeline_mart"]
+        G2["📈 revenue_mart"]
+        G3["📈 marketing_mart"]
+        G4["📈 compliance_mart"]
+        G_FEAT["Features: aggregations, KPIs, business logic"]
+    end
+
+    subgraph Platinum["Platinum Layer - AI/ML"]
+        direction TB
+        P1["🧠 Embeddings"]
+        P2["🧠 Knowledge Graph"]
+        P3["🧠 ML Features"]
+        P_FEAT["Features: vectors, relationships, predictions"]
+    end
+
+    subgraph Consumption["Consumption Layer"]
+        RS[Redshift Serverless]
+        ATHENA[Athena]
+        API_SVC[Analytics API]
+        AGENT[AI Agents]
+        BI[BI Tools]
+    end
+
+    %% Source to Ingestion
+    PC --> CONN
+    MP --> CONN
+    CRM --> CONN
+    EXT --> BATCH
+    CONN --> STREAM
+    STREAM --> Bronze
+    BATCH --> Bronze
+
+    %% Bronze to DQ
+    Bronze --> DQ
+    DQ --> DLQ_DQ
+    DQ --> Silver
+
+    %% Silver to Gold/Platinum
+    Silver --> Gold
+    Silver --> Platinum
+
+    %% Consumption
+    Gold --> RS
+    Gold --> ATHENA
+    Platinum --> AGENT
+    RS --> API_SVC
+    RS --> BI
+    ATHENA --> BI
+
+    %% Styling
+    style Bronze fill:#e8f4ea,stroke:#34a853
+    style Silver fill:#e3f2fd,stroke:#1a73e8
+    style Gold fill:#fff8e1,stroke:#fbbc04
+    style Platinum fill:#fce4ec,stroke:#ea4335

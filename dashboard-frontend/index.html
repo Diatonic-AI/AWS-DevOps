@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toledo Consulting - Partner Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div id="app">
+        <!-- Header -->
+        <header class="gradient-bg text-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-6">
+                    <div class="flex items-center">
+                        <h1 class="text-3xl font-bold">Toledo Consulting</h1>
+                        <span class="ml-4 px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm">Partner Dashboard</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm opacity-75" id="last-updated">Last updated: --</span>
+                        <button id="refresh-btn" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Status Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">System Status</p>
+                            <p class="text-2xl font-semibold text-gray-900" id="system-status">Healthy</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">Active Resources</p>
+                            <p class="text-2xl font-semibold text-gray-900" id="resource-count">--</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">API Requests</p>
+                            <p class="text-2xl font-semibold text-gray-900" id="api-requests">--</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m-3-2h6M9 4h6"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">Monthly Cost</p>
+                            <p class="text-2xl font-semibold text-gray-900" id="monthly-cost">$--</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">API Usage (24h)</h3>
+                    <canvas id="api-chart"></canvas>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Resource Utilization</h3>
+                    <canvas id="resource-chart"></canvas>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Company Costs (30 days)</h3>
+                    <canvas id="cost-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Company Cost Breakdown -->
+            <div class="bg-white rounded-lg shadow mb-8">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Company Cost Breakdown</h3>
+                    <p class="text-sm text-gray-500 mt-1">Costs for Minute Man Press and Steve Heaney Investment Hub</p>
+                </div>
+                <div class="p-6">
+                    <div id="company-costs" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="text-center text-gray-500">Loading cost data...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resources Table -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Active Resources</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Resource</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resources-table" class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="4" class="px-6 py-4 text-center text-gray-500">Loading resources...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'https://4nx5nllud9.execute-api.us-east-2.amazonaws.com/prod'; // Will be replaced during deployment
+        
+        // Global state
+        let apiChart, resourceChart, costChart;
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', async () => {
+            initializeCharts();
+            await loadDashboardData();
+            
+            // Set up refresh button
+            document.getElementById('refresh-btn').addEventListener('click', loadDashboardData);
+            
+            // Auto-refresh every 5 minutes
+            setInterval(loadDashboardData, 300000);
+        });
+        
+        // Initialize Chart.js charts
+        function initializeCharts() {
+            // API Usage Chart
+            const apiCtx = document.getElementById('api-chart').getContext('2d');
+            apiChart = new Chart(apiCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'API Requests',
+                        data: [],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Resource Utilization Chart
+            const resourceCtx = document.getElementById('resource-chart').getContext('2d');
+            resourceChart = new Chart(resourceCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Active', 'Stopped', 'Pending'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: ['#10b981', '#ef4444', '#f59e0b']
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            });
+            
+            // Company Cost Chart
+            const costCtx = document.getElementById('cost-chart').getContext('2d');
+            costChart = new Chart(costCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Daily Costs ($)',
+                        data: [],
+                        backgroundColor: '#8b5cf6',
+                        borderColor: '#7c3aed',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toFixed(2);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                document.getElementById('last-updated').textContent = 'Updating...';
+                
+                // Load health check
+                const health = await fetchAPI('/health');
+                updateSystemStatus(health);
+                
+                // Load metrics
+                const metrics = await fetchAPI('/metrics');
+                updateMetrics(metrics);
+                
+                // Load resources
+                const resources = await fetchAPI('/resources');
+                updateResources(resources);
+                
+                // Load cost data
+                const costs = await fetchAPI('/costs');
+                updateCosts(costs);
+                
+                document.getElementById('last-updated').textContent = 
+                    `Last updated: ${new Date().toLocaleTimeString()}`;
+                    
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                document.getElementById('system-status').textContent = 'Error';
+                document.getElementById('system-status').parentElement.parentElement.querySelector('.bg-green-500').className = 
+                    'w-8 h-8 bg-red-500 rounded-full flex items-center justify-center';
+            }
+        }
+        
+        // Fetch data from API
+        async function fetchAPI(endpoint) {
+            const response = await fetch(`${API_BASE_URL}${endpoint}`);
+            if (!response.ok) {
+                throw new Error(`API request failed: ${response.status}`);
+            }
+            return await response.json();
+        }
+        
+        // Update system status
+        function updateSystemStatus(health) {
+            const statusElement = document.getElementById('system-status');
+            statusElement.textContent = health.status === 'healthy' ? 'Healthy' : 'Issues';
+        }
+        
+        // Update metrics charts
+        function updateMetrics(metrics) {
+            if (metrics.api && metrics.api.requests) {
+                const requests = metrics.api.requests;
+                const totalRequests = requests.reduce((sum, point) => sum + (point.Sum || 0), 0);
+                document.getElementById('api-requests').textContent = totalRequests.toString();
+                
+                // Update API chart
+                apiChart.data.labels = requests.map(point => 
+                    new Date(point.Timestamp).toLocaleTimeString()
+                );
+                apiChart.data.datasets[0].data = requests.map(point => point.Sum || 0);
+                apiChart.update();
+            }
+        }
+        
+        // Update resources table
+        function updateResources(data) {
+            const tbody = document.getElementById('resources-table');
+            
+            if (data.error || !data.resources) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-red-500">
+                            Error loading resources: ${data.error || 'Unknown error'}
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            const { resources } = data;
+            const totalCount = resources.ec2.length + resources.rds.length + resources.s3.length;
+            document.getElementById('resource-count').textContent = totalCount.toString();
+            
+            let rows = '';
+            
+            // EC2 instances
+            resources.ec2.forEach(instance => {
+                const statusColor = instance.state === 'running' ? 'text-green-600' : 'text-yellow-600';
+                rows += `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${instance.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">EC2 (${instance.type})</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm ${statusColor}">${instance.state}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <button class="text-blue-600 hover:text-blue-900">Manage</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            // RDS instances
+            resources.rds.forEach(instance => {
+                const statusColor = instance.status === 'available' ? 'text-green-600' : 'text-yellow-600';
+                rows += `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${instance.id}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">RDS (${instance.engine})</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm ${statusColor}">${instance.status}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <button class="text-blue-600 hover:text-blue-900">Manage</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            if (rows === '') {
+                rows = `
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">No resources found with Partner=toledo-consulting tag</td>
+                    </tr>
+                `;
+            }
+            
+            tbody.innerHTML = rows;
+            
+            // Update resource chart
+            const activeCount = resources.ec2.filter(i => i.state === 'running').length + 
+                              resources.rds.filter(i => i.status === 'available').length;
+            const stoppedCount = resources.ec2.filter(i => i.state === 'stopped').length + 
+                               resources.rds.filter(i => i.status === 'stopped').length;
+            const pendingCount = totalCount - activeCount - stoppedCount;
+            
+            resourceChart.data.datasets[0].data = [activeCount, stoppedCount, pendingCount];
+            resourceChart.update();
+        }
+        
+        // Update cost data and charts
+        function updateCosts(data) {
+            const costContainer = document.getElementById('company-costs');
+            
+            if (data.error || !data.summary) {
+                costContainer.innerHTML = `
+                    <div class="text-center text-red-500 col-span-2">
+                        Error loading cost data: ${data.error || 'Unknown error'}
+                    </div>
+                `;
+                document.getElementById('monthly-cost').textContent = '$--';
+                return;
+            }
+            
+            const { summary } = data;
+            
+            // Update monthly cost display
+            const monthlyCost = summary.totalCost || 0;
+            document.getElementById('monthly-cost').textContent = '$' + monthlyCost.toFixed(2);
+            
+            // Update cost chart
+            if (summary.dailyCosts && summary.dailyCosts.length > 0) {
+                costChart.data.labels = summary.dailyCosts.map(item => 
+                    new Date(item.date).toLocaleDateString()
+                );
+                costChart.data.datasets[0].data = summary.dailyCosts.map(item => item.cost);
+                costChart.update();
+            }
+            
+            // Update company breakdown
+            let companyHtml = '';
+            
+            // Company breakdown cards
+            if (summary.companyBreakdown && Object.keys(summary.companyBreakdown).length > 0) {
+                Object.entries(summary.companyBreakdown).forEach(([company, cost]) => {
+                    const displayName = company.includes('minute') ? 'Minute Man Press' : 
+                                      company.includes('steve') || company.includes('investment') ? 'Steve Heaney Investment Hub' :
+                                      company;
+                    
+                    companyHtml += `
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-900">${displayName}</h4>
+                            <p class="text-2xl font-semibold text-purple-600">$${cost.toFixed(2)}</p>
+                            <p class="text-sm text-gray-500">30-day total</p>
+                        </div>
+                    `;
+                });
+            }
+            
+            // Service breakdown
+            if (summary.serviceBreakdown && Object.keys(summary.serviceBreakdown).length > 0) {
+                companyHtml += '<div class="col-span-2"><h4 class="font-medium text-gray-900 mb-2">Service Breakdown</h4>';
+                Object.entries(summary.serviceBreakdown)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 5)
+                    .forEach(([service, cost]) => {
+                        companyHtml += `
+                            <div class="flex justify-between items-center py-1">
+                                <span class="text-sm text-gray-600">${service}</span>
+                                <span class="text-sm font-medium">$${cost.toFixed(2)}</span>
+                            </div>
+                        `;
+                    });
+                companyHtml += '</div>';
+            }
+            
+            if (companyHtml === '') {
+                companyHtml = `
+                    <div class="text-center text-gray-500 col-span-2">
+                        No cost data found for target companies.<br>
+                        <span class="text-xs">Resources must be tagged with Company=minute-man-press or Company=steve-heaney-investment</span>
+                    </div>
+                `;
+            }
+            
+            costContainer.innerHTML = companyHtml;
+        }
+    </script>
+</body>
+</html>

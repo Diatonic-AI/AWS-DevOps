@@ -1,0 +1,108 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#232f3e', 'primaryTextColor': '#fff', 'lineColor': '#ff9900'}}}%%
+
+flowchart TB
+    subgraph Clients["Client Layer"]
+        UI[UI Portal]
+        API_CLIENT[API Clients]
+        WEBHOOK[Webhooks]
+    end
+
+    subgraph Gateway["API Gateway Layer"]
+        APIGW[API Gateway + WAF]
+        AUTH[Cognito / IAM Auth]
+    end
+
+    subgraph Services["Service Layer"]
+        GW_SVC[Gateway Service]
+        TENANT_SVC[Tenant Service]
+        AUTHZ_SVC[AuthZ Service]
+        ANALYTICS_SVC[Analytics Service]
+        AGENT_HUB[Agent Hub]
+    end
+
+    subgraph Connectors["Connector Layer"]
+        PC_CONN[Partner Central<br/>Connector]
+        MP_CONN[Marketplace<br/>Connector]
+        CRM_CONN[CRM Connector]
+    end
+
+    subgraph Orchestration["Orchestration Layer"]
+        EB[EventBridge]
+        SF[Step Functions]
+        DLQ[Dead Letter Queue]
+    end
+
+    subgraph Data["Data Layer"]
+        subgraph Lake["S3 Data Lake"]
+            BRONZE[Bronze]
+            SILVER[Silver]
+            GOLD[Gold]
+            PLATINUM[Platinum]
+        end
+        RDS[(Aurora PostgreSQL<br/>Control Plane)]
+        RS[(Redshift Serverless<br/>Analytics)]
+        VECTOR[(pgvector<br/>Embeddings)]
+    end
+
+    subgraph External["External AWS Services"]
+        PC_API[Partner Central API]
+        MP_API[Marketplace APIs]
+        BEDROCK[Amazon Bedrock]
+    end
+
+    subgraph Security["Security & Observability"]
+        KMS[KMS Keys]
+        SM[Secrets Manager]
+        CW[CloudWatch]
+        XRAY[X-Ray]
+    end
+
+    %% Client connections
+    UI --> APIGW
+    API_CLIENT --> APIGW
+    WEBHOOK --> EB
+
+    %% Gateway flow
+    APIGW --> AUTH
+    AUTH --> GW_SVC
+    GW_SVC --> AUTHZ_SVC
+
+    %% Service connections
+    GW_SVC --> TENANT_SVC
+    GW_SVC --> ANALYTICS_SVC
+    GW_SVC --> AGENT_HUB
+    AUTHZ_SVC --> RDS
+
+    %% Connector orchestration
+    SF --> PC_CONN
+    SF --> MP_CONN
+    SF --> CRM_CONN
+    EB --> SF
+    SF --> DLQ
+
+    %% External API calls
+    PC_CONN --> PC_API
+    MP_CONN --> MP_API
+    AGENT_HUB --> BEDROCK
+
+    %% Data flow
+    PC_CONN --> BRONZE
+    MP_CONN --> BRONZE
+    BRONZE --> SILVER
+    SILVER --> GOLD
+    SILVER --> PLATINUM
+
+    %% Analytics
+    GOLD --> RS
+    PLATINUM --> VECTOR
+    RS --> ANALYTICS_SVC
+
+    %% Security
+    RDS -.-> KMS
+    Lake -.-> KMS
+    PC_CONN -.-> SM
+    MP_CONN -.-> SM
+
+    %% Observability
+    Services -.-> CW
+    Services -.-> XRAY

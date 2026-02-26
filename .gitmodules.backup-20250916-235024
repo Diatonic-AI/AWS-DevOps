@@ -1,0 +1,5 @@
+[submodule "apps/ai-nexus-workbench"]
+	path = apps/ai-nexus-workbench
+	url = https://github.com/iamdrewfortini/ai-nexus-workbench.git
+	branch = main
+	update = none

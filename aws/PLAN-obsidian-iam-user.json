@@ -1,0 +1,17 @@
+{
+  "operation": "create-iam-user-for-obsidian",
+  "resources": {
+    "user_name": "obsidian-plugin-dynamodb",
+    "policy_name": "ObsidianDynamoDBAccess",
+    "region": "us-east-2",
+    "tables": ["Comment-dvz5kkhygnfd7e4ikckwbmxzhi-NONE", "ContentDocumentation-dvz5kkhygnfd7e4ikckwbmxzhi-NONE", "ContentEducation-dvz5kkhygnfd7e4ikckwbmxzhi-NONE", "ContentNews-dvz5kkhygnfd7e4ikckwbmxzhi-NONE", "ContentResources-dvz5kkhygnfd7e4ikckwbmxzhi-NONE", "ContentWorkforceTools-dvz5kkhygnfd7e4ikckwbmxzhi-NONE", "Tag-dvz5kkhygnfd7e4ikckwbmxzhi-NONE", "UserProfile-dvz5kkhygnfd7e4ikckwbmxzhi-NONE", "UserSubscription-dvz5kkhygnfd7e4ikckwbmxzhi-NONE", "VaultSyncStatus-dvz5kkhygnfd7e4ikckwbmxzhi-NONE", "aiwh-prod-ddb-hub"]
+  },
+  "tags": {
+    "Project": "obsidian-integration",
+    "Owner": "daclab-ai",
+    "Env": "production", 
+    "Service": "obsidian-plugin",
+    "CostCenter": "development"
+  },
+  "approved": false
+}

@@ -1,0 +1,44 @@
+---
+# Deploy platform services
+# Usage: ansible-playbook -i inventories/dev.ini playbooks/deploy-services.yml
+
+- name: Deploy platform services
+  hosts: app_servers
+  become: true
+  gather_facts: true
+
+  vars:
+    deploy_gateway_api: true
+    deploy_tenant_service: true
+    deploy_connectors: true
+    deploy_orchestrator: true
+
+  tasks:
+    - name: Ensure Docker is running
+      service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Pull latest service images
+      docker_image:
+        name: "{{ item }}"
+        source: pull
+        force_source: true
+      loop:
+        - "{{ ecr_registry }}/pcw-gateway-api:{{ image_tag | default('latest') }}"
+        - "{{ ecr_registry }}/pcw-tenant-service:{{ image_tag | default('latest') }}"
+        - "{{ ecr_registry }}/pcw-connector-partner-central:{{ image_tag | default('latest') }}"
+      when: ecr_registry is defined
+
+    - name: Display deployment info
+      debug:
+        msg: |
+          Service deployment targets:
+          - Gateway API: {{ deploy_gateway_api }}
+          - Tenant Service: {{ deploy_tenant_service }}
+          - Connectors: {{ deploy_connectors }}
+          - Orchestrator: {{ deploy_orchestrator }}
+
+          Note: In production, use ECS/EKS deployments via Terraform or CI/CD.
+          This playbook is for development/testing purposes.

@@ -1,0 +1,25 @@
+# Add this backend configuration to your main.tf file:
+
+terraform {
+  backend "s3" {
+    bucket         = "aws-devops-terraform-state-unified-xewhyolb"
+    key            = "unified/terraform.tfstate"
+    region         = "us-east-2"
+    dynamodb_table = "aws-devops-terraform-state-lock"
+    encrypt        = true
+    workspace_key_prefix = "workspaces"
+  }
+}
+
+# Workspace Commands:
+# terraform workspace new dev
+# terraform workspace new staging  
+# terraform workspace new prod
+# terraform workspace new ai-nexus
+# terraform workspace new minio
+
+# State files will be stored at:
+# s3://aws-devops-terraform-state-unified-xewhyolb/workspaces/dev/unified/terraform.tfstate
+# s3://aws-devops-terraform-state-unified-xewhyolb/workspaces/staging/unified/terraform.tfstate
+# s3://aws-devops-terraform-state-unified-xewhyolb/workspaces/prod/unified/terraform.tfstate
+# etc.

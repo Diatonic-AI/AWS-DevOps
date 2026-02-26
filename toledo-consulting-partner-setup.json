@@ -1,0 +1,35 @@
+{
+  "partner": {
+    "company_name": "Toledo Consulting & Contracting LLC",
+    "website": "https://www.toledoconsulting.net/",
+    "domain": "toledoconsulting.net",
+    "uei": "MKK3NH3NRC95",
+    "cage_code": "83JT2",
+    "duns": "155808251",
+    "services": [
+      "Fractional CTO",
+      "Generative AI",
+      "Project Management",
+      "IT Services",
+      "Managed IT Services",
+      "Cloud Backup",
+      "Network Setup",
+      "Vendor Management"
+    ],
+    "specialties": [
+      "AI artificial intelligence",
+      "Special Project Management",
+      "Enterprise-level solutions",
+      "Veteran Certification"
+    ]
+  },
+  "aws_setup": {
+    "organizational_unit": "ou-295b-6ku3yklg",
+    "resource_group_tags": {
+      "Partner": "toledo-consulting",
+      "CompanyType": "contractor",
+      "Services": "ai-consulting",
+      "Certification": "veteran-owned"
+    }
+  }
+}

@@ -1,0 +1,278 @@
+{
+  "catalog": {
+    "version": "1.0.0",
+    "updated_at": "2024-01-15T00:00:00Z",
+    "modules": [
+      {
+        "apiVersion": "pcw.platform/v1",
+        "kind": "Module",
+        "metadata": {
+          "name": "connector.partner-central.opportunities",
+          "version": "0.1.0",
+          "description": "Ingest and manage AWS Partner Central opportunities with full lifecycle support",
+          "author": "Platform Team",
+          "license": "Proprietary",
+          "tags": ["partner-central", "opportunities", "ace", "ingestion"],
+          "documentation_url": "https://docs.example.com/connectors/partner-central"
+        },
+        "spec": {
+          "type": "connector",
+          "tenancy": {
+            "compatible_models": ["pooled_compute_isolated_data", "siloed"]
+          },
+          "permissions": {
+            "aws": [
+              "partnercentral:CreateOpportunity",
+              "partnercentral:AssociateOpportunity",
+              "partnercentral:StartEngagementFromOpportunity",
+              "partnercentral:GetOpportunity",
+              "partnercentral:ListOpportunities"
+            ],
+            "platform": ["data:write", "connectors:sync"]
+          },
+          "produces": {
+            "datasets": [
+              "bronze/partnercentral/opportunities/",
+              "silver/partnercentral/opportunities/",
+              "gold/marts/pipeline/"
+            ],
+            "events": [
+              "pcw.partnercentral.opportunity.created",
+              "pcw.partnercentral.opportunity.updated",
+              "pcw.ingestion.run.completed"
+            ]
+          },
+          "dependsOn": ["core.eventing", "core.secrets"],
+          "costHints": {
+            "expected_monthly_usd_range": "50-250",
+            "cost_drivers": ["api_calls", "storage"]
+          },
+          "guardrails": {
+            "requires_action_approval": true,
+            "pii_policy": "standard_redaction_v1",
+            "rate_limits": {
+              "requests_per_minute": 60,
+              "records_per_run": 10000
+            }
+          }
+        }
+      },
+      {
+        "apiVersion": "pcw.platform/v1",
+        "kind": "Module",
+        "metadata": {
+          "name": "connector.marketplace.catalog",
+          "version": "0.1.0",
+          "description": "Manage AWS Marketplace products, offers, and subscriptions",
+          "author": "Platform Team",
+          "license": "Proprietary",
+          "tags": ["marketplace", "catalog", "products", "offers"]
+        },
+        "spec": {
+          "type": "connector",
+          "tenancy": {
+            "compatible_models": ["pooled_compute_isolated_data", "siloed"]
+          },
+          "permissions": {
+            "aws": [
+              "marketplace-catalog:ListEntities",
+              "marketplace-catalog:DescribeEntity",
+              "marketplace-catalog:StartChangeSet",
+              "marketplace-catalog:DescribeChangeSet"
+            ],
+            "platform": ["data:write", "connectors:sync"]
+          },
+          "produces": {
+            "datasets": [
+              "bronze/marketplace/products/",
+              "bronze/marketplace/offers/",
+              "silver/marketplace/products/",
+              "silver/marketplace/offers/"
+            ],
+            "events": [
+              "pcw.marketplace.product.synced",
+              "pcw.marketplace.offer.synced"
+            ]
+          },
+          "dependsOn": ["core.eventing", "core.secrets"],
+          "costHints": {
+            "expected_monthly_usd_range": "25-100",
+            "cost_drivers": ["api_calls"]
+          },
+          "guardrails": {
+            "requires_action_approval": true,
+            "pii_policy": "none"
+          }
+        }
+      },
+      {
+        "apiVersion": "pcw.platform/v1",
+        "kind": "Module",
+        "metadata": {
+          "name": "connector.marketplace.metering",
+          "version": "0.1.0",
+          "description": "Emit usage metering for AWS Marketplace SaaS subscriptions",
+          "author": "Platform Team",
+          "license": "Proprietary",
+          "tags": ["marketplace", "metering", "usage", "billing"]
+        },
+        "spec": {
+          "type": "connector",
+          "tenancy": {
+            "compatible_models": ["pooled_compute_isolated_data", "siloed"]
+          },
+          "permissions": {
+            "aws": ["aws-marketplace:MeterUsage"],
+            "platform": ["marketplace:emit_usage"]
+          },
+          "produces": {
+            "events": ["pcw.marketplace.metering.emitted"]
+          },
+          "consumes": {
+            "datasets": ["gold/marts/usage/"]
+          },
+          "dependsOn": ["core.eventing"],
+          "costHints": {
+            "expected_monthly_usd_range": "10-50",
+            "cost_drivers": ["api_calls"]
+          },
+          "guardrails": {
+            "requires_action_approval": false,
+            "pii_policy": "none"
+          }
+        }
+      },
+      {
+        "apiVersion": "pcw.platform/v1",
+        "kind": "Module",
+        "metadata": {
+          "name": "pipeline.bronze-to-silver",
+          "version": "0.1.0",
+          "description": "Standard ETL pipeline for bronze to silver layer transformation",
+          "author": "Data Team",
+          "license": "Proprietary",
+          "tags": ["etl", "pipeline", "normalization"]
+        },
+        "spec": {
+          "type": "pipeline",
+          "tenancy": {
+            "compatible_models": ["pooled_compute_isolated_data", "siloed"]
+          },
+          "permissions": {
+            "aws": ["s3:GetObject", "s3:PutObject", "glue:*"],
+            "platform": ["data:read", "data:write"]
+          },
+          "consumes": {
+            "datasets": ["bronze/"]
+          },
+          "produces": {
+            "datasets": ["silver/"],
+            "events": ["pcw.pipeline.silver.completed"]
+          },
+          "dependsOn": ["core.eventing", "core.data-quality"],
+          "costHints": {
+            "expected_monthly_usd_range": "100-500",
+            "cost_drivers": ["compute", "storage"]
+          },
+          "guardrails": {
+            "pii_policy": "standard_redaction_v1"
+          }
+        }
+      },
+      {
+        "apiVersion": "pcw.platform/v1",
+        "kind": "Module",
+        "metadata": {
+          "name": "dashboard.pipeline-health",
+          "version": "0.1.0",
+          "description": "ACE pipeline health and conversion metrics dashboard",
+          "author": "Analytics Team",
+          "license": "Proprietary",
+          "tags": ["dashboard", "analytics", "pipeline", "kpi"]
+        },
+        "spec": {
+          "type": "dashboard",
+          "tenancy": {
+            "compatible_models": ["pooled_compute_isolated_data", "siloed"]
+          },
+          "permissions": {
+            "platform": ["analytics:read"]
+          },
+          "consumes": {
+            "datasets": ["gold/marts/pipeline/"]
+          },
+          "dependsOn": ["pipeline.bronze-to-silver"],
+          "costHints": {
+            "expected_monthly_usd_range": "10-50",
+            "cost_drivers": ["queries"]
+          }
+        }
+      },
+      {
+        "apiVersion": "pcw.platform/v1",
+        "kind": "Module",
+        "metadata": {
+          "name": "agent.partner-advisor",
+          "version": "0.1.0-beta",
+          "description": "AI agent for partner program recommendations and opportunity insights",
+          "author": "AI Team",
+          "license": "Proprietary",
+          "tags": ["ai", "agent", "recommendations", "bedrock"]
+        },
+        "spec": {
+          "type": "agent",
+          "tenancy": {
+            "compatible_models": ["pooled_compute_isolated_data"]
+          },
+          "permissions": {
+            "aws": ["bedrock:InvokeModel"],
+            "platform": ["ai:query", "data:read"]
+          },
+          "consumes": {
+            "datasets": ["platinum/embeddings/", "gold/marts/pipeline/"]
+          },
+          "produces": {
+            "events": ["pcw.agent.recommendation.generated"]
+          },
+          "dependsOn": ["core.agent-hub", "pipeline.embeddings"],
+          "costHints": {
+            "expected_monthly_usd_range": "200-1000",
+            "cost_drivers": ["bedrock_tokens", "compute"]
+          },
+          "guardrails": {
+            "pii_policy": "aggressive_redaction_v1",
+            "rate_limits": {
+              "requests_per_minute": 30
+            }
+          }
+        }
+      }
+    ]
+  },
+  "categories": [
+    {
+      "id": "connectors",
+      "name": "Connectors",
+      "description": "Data ingestion and external system integrations",
+      "icon": "plug"
+    },
+    {
+      "id": "pipelines",
+      "name": "Pipelines",
+      "description": "ETL, transformation, and data processing workflows",
+      "icon": "workflow"
+    },
+    {
+      "id": "dashboards",
+      "name": "Dashboards",
+      "description": "Analytics visualizations and KPI packs",
+      "icon": "chart"
+    },
+    {
+      "id": "agents",
+      "name": "AI Agents",
+      "description": "Autonomous AI assistants and recommendation engines",
+      "icon": "brain"
+    }
+  ]
+}

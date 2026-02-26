@@ -1,0 +1,57 @@
+# 1st Commercial Credit - Client Organization Configuration
+# AWS Partner Central Client Profile
+---
+client:
+  id: "1st-commercial-credit"
+  name: "1st Commercial Credit"
+  display_name: "1st Commercial Credit"
+  status: active
+  created_at: "2026-01-12"
+
+# AWS Organization Mapping
+aws:
+  organization_id: "o-eyf5fcwrr3"
+  ou_id: "ou-295b-jwnuwyen"  # Client Organizations OU
+  account_id: "313476888312"  # Primary account (DiatonicAI Management)
+  region: "us-east-2"
+
+# Resource Tags
+tags:
+  ClientOrganization: "1st-Commercial-Credit"
+  ClientAccount: "313476888312"
+  ClientOU: "ou-295b-jwnuwyen"
+  Environment: "production"
+  BillingProject: "1st-commercial-credit"
+
+# Associated Amplify Applications
+applications:
+  - id: "d3fmbf4wquqbgg"
+    name: "unified-monorepo"
+    type: "amplify"
+    branches:
+      - main
+    backend_api: null  # No AppSync backend yet
+
+# Partner Central Configuration
+partner_central:
+  enabled: true
+  customer_name: "1st Commercial Credit"
+  industry: "Financial Services"
+  engagement_type: "new_customer"
+  opportunity_type: "net_new_business"
+
+# Billing Configuration
+billing:
+  plan: "scale"  # foundation, scale, enterprise
+  billing_cycle: "monthly"
+  cost_allocation_tags:
+    - ClientOrganization
+    - BillingProject
+    - Environment
+
+# Contact Information
+contacts:
+  primary:
+    name: "TBD"
+    email: "admin@1stcommercialcredit.com"
+    role: "Account Owner"

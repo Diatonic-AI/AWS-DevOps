@@ -1,0 +1,35 @@
+---
+# Main site playbook - entry point for full deployment
+# Usage: ansible-playbook -i inventories/dev.ini playbooks/site.yml
+
+- name: Platform baseline for all hosts
+  hosts: all
+  become: true
+  gather_facts: true
+  roles:
+    - role: common
+      tags: [common, baseline]
+
+- name: Build host configuration
+  hosts: build_hosts
+  become: true
+  roles:
+    - role: build-host
+      tags: [build, ci]
+    - role: github-runner
+      tags: [build, runner]
+      when: github_runner_enabled | default(false)
+
+- name: Application server configuration
+  hosts: app_servers
+  become: true
+  roles:
+    - role: observability-agent
+      tags: [observability, monitoring]
+
+- name: Worker configuration
+  hosts: workers
+  become: true
+  roles:
+    - role: observability-agent
+      tags: [observability, monitoring]

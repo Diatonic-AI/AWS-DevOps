@@ -1,0 +1,52 @@
+platform:
+  name: "partnercentral-wrapper-platform"
+  version: "1.1.0"
+  region: "us-east-1"
+  env: "dev"
+
+tenancy:
+  model: "pooled_compute_isolated_data"
+  tenant_id_claim: "tid"
+  default_plan: "foundation"
+  rls_enabled: true
+
+approval_gates:
+  action_approval_mode: "manual"   # manual | automatic
+  partner_central_writes:
+    enabled: true
+    require_ticket_id: true
+  marketplace_publishing:
+    enabled: true
+    require_release_approver: true
+
+data:
+  lake:
+    bucket_name: "pcw-lake-${env}"
+    bronze_prefix: "bronze/"
+    silver_prefix: "silver/"
+    gold_prefix: "gold/"
+    platinum_prefix: "platinum/"
+  warehouse:
+    provider: "redshift_serverless"
+  operational_db:
+    provider: "aurora_postgres"
+    schema: "control_plane"
+
+ai:
+  enabled: true
+  providers:
+    - name: "bedrock"
+      enabled: true
+    - name: "openai"
+      enabled: false
+  rag:
+    vector_store: "pgvector"   # pgvector | opensearch_vector
+    chunking:
+      max_tokens: 800
+      overlap_tokens: 120
+
+observability:
+  traces: true
+  metrics: true
+  logs: true
+  pii_redaction: true

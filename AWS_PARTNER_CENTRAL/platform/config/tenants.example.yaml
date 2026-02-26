@@ -1,0 +1,78 @@
+# Example tenant configuration
+# Copy to tenants.yaml and customize for your environment
+
+tenants:
+  - id: "00000000-0000-0000-0000-000000000001"
+    slug: "acme-corp"
+    name: "ACME Corporation"
+    plan: "enterprise"
+    status: "active"
+    settings:
+      data_retention_days: 730
+      pii_redaction: "aggressive"
+      allowed_regions:
+        - "us-east-1"
+        - "us-west-2"
+      custom_branding:
+        logo_url: "https://acme.example.com/logo.png"
+        primary_color: "#1a2b3c"
+        support_email: "support@acme.example.com"
+    contacts:
+      admin:
+        email: "admin@acme.example.com"
+        name: "Jane Admin"
+      billing:
+        email: "billing@acme.example.com"
+        name: "John Billing"
+    connectors:
+      - partner_central
+      - marketplace
+      - salesforce
+    limits_override:
+      # Override plan defaults if needed
+      max_users: 1000
+      max_api_calls_per_day: 10000000
+
+  - id: "00000000-0000-0000-0000-000000000002"
+    slug: "startup-xyz"
+    name: "Startup XYZ"
+    plan: "foundation"
+    status: "active"
+    settings:
+      data_retention_days: 365
+      pii_redaction: "standard"
+      allowed_regions:
+        - "us-east-1"
+    contacts:
+      admin:
+        email: "founder@startupxyz.example.com"
+        name: "Founder Name"
+    connectors:
+      - partner_central
+    # Using plan defaults, no overrides
+
+  - id: "00000000-0000-0000-0000-000000000003"
+    slug: "midsize-co"
+    name: "Midsize Company"
+    plan: "scale"
+    status: "active"
+    settings:
+      data_retention_days: 730
+      pii_redaction: "standard"
+      allowed_regions:
+        - "us-east-1"
+        - "eu-west-1"
+    contacts:
+      admin:
+        email: "it@midsize.example.com"
+        name: "IT Manager"
+    connectors:
+      - partner_central
+      - marketplace
+      - hubspot
+
+# Tenant status options:
+# - active: Normal operation
+# - suspended: Access disabled, data retained
+# - pending_deletion: Scheduled for removal
+# - provisioning: Initial setup in progress

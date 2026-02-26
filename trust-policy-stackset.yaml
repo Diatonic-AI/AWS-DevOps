@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Update OrganizationAccountAccessRole trust policy'
+
+Resources:
+  UpdateTrustPolicy:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: OrganizationAccountAccessRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS:
+                - !Sub 'arn:aws:iam::313476888312:root'
+                - !Sub 'arn:aws:iam::313476888312:user/dfortini-local'
+                - !Sub 'arn:aws:iam::313476888312:user/CentralizedAdminUser'
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+      Path: /

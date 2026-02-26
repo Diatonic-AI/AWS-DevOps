@@ -1,0 +1,46 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "FullBillingAndCostAccess",
+            "Effect": "Allow",
+            "Action": [
+                "ce:*",
+                "budgets:*",
+                "cur:*",
+                "aws-portal:*",
+                "billing:*",
+                "account:GetAccountInformation",
+                "account:GetAlternateContact",
+                "account:GetContactInformation",
+                "support:DescribeTrustedAdvisorChecks",
+                "support:DescribeTrustedAdvisorCheckResult",
+                "support:RefreshTrustedAdvisorCheck",
+                "trustedadvisor:Describe*",
+                "trustedadvisor:DownloadRisk"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "CostAnomalyDetection",
+            "Effect": "Allow",
+            "Action": [
+                "ce:GetAnomalies",
+                "ce:GetAnomalyDetectors",
+                "ce:GetAnomalyMonitors",
+                "ce:GetAnomalySubscriptions"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "SavingsPlans",
+            "Effect": "Allow",
+            "Action": [
+                "savingsplans:DescribeSavingsPlans",
+                "savingsplans:DescribeSavingsPlansOfferings",
+                "savingsplans:DescribeSavingsPlansOfferingRates"
+            ],
+            "Resource": "*"
+        }
+    ]
+}

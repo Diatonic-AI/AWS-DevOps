@@ -1,0 +1,60 @@
+---
+# Bootstrap a build host with development tools
+# Usage: ansible-playbook -i inventories/dev.ini playbooks/bootstrap-build-host.yml
+
+- name: Bootstrap build host
+  hosts: build_hosts
+  become: true
+  gather_facts: true
+
+  vars:
+    install_docker: true
+    install_terraform: true
+    install_awscli: true
+    install_python_tools: true
+    install_node: true
+
+  tasks:
+    - name: Run common baseline
+      include_role:
+        name: common
+
+    - name: Install Docker
+      include_role:
+        name: build-host
+        tasks_from: docker.yml
+      when: install_docker | bool
+
+    - name: Install Terraform
+      include_role:
+        name: build-host
+        tasks_from: terraform.yml
+      when: install_terraform | bool
+
+    - name: Install AWS CLI v2
+      include_role:
+        name: build-host
+        tasks_from: awscli.yml
+      when: install_awscli | bool
+
+    - name: Install Python development tools
+      include_role:
+        name: build-host
+        tasks_from: python.yml
+      when: install_python_tools | bool
+
+    - name: Install Node.js
+      include_role:
+        name: build-host
+        tasks_from: node.yml
+      when: install_node | bool
+
+    - name: Display installation summary
+      debug:
+        msg: |
+          Build host bootstrap complete!
+          - Docker: {{ install_docker }}
+          - Terraform: {{ install_terraform }}
+          - AWS CLI: {{ install_awscli }}
+          - Python tools: {{ install_python_tools }}
+          - Node.js: {{ install_node }}

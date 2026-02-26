@@ -1,0 +1,26 @@
+{
+  "name": "partner-central-sync",
+  "version": "1.0.0-placeholder",
+  "description": "Sync AWS Partner Central opportunities and referrals to DynamoDB (placeholder version until SDK is released)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "aws",
+    "partner-central",
+    "lambda",
+    "dynamodb"
+  ],
+  "author": "DAC Visuals",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.500.0",
+    "@aws-sdk/lib-dynamodb": "^3.500.0"
+  },
+  "notes": [
+    "Placeholder version: @aws-sdk/client-partnercentralselling not yet available in npm",
+    "Use CLI tools in scripts/ directory for Partner Central management",
+    "Lambda will be updated when SDK is officially released"
+  ]
+}

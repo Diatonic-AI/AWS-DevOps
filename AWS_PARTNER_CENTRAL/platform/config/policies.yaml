@@ -1,0 +1,138 @@
+# Authorization Policies Configuration
+# These policies are loaded into the authz-service and evaluated on each request
+
+policies:
+  # Role-Based Access Control (RBAC) definitions
+  rbac:
+    roles:
+      tenant_admin:
+        description: "Full tenant administration access"
+        permissions:
+          - "tenant:*"
+          - "users:*"
+          - "roles:*"
+          - "connectors:*"
+          - "data:read"
+          - "data:write"
+          - "analytics:*"
+          - "ai:*"
+
+      operator:
+        description: "Operational access for managing connectors and data"
+        permissions:
+          - "connectors:read"
+          - "connectors:configure"
+          - "connectors:sync"
+          - "data:read"
+          - "data:write"
+          - "analytics:read"
+
+      analyst:
+        description: "Read-only analytics and reporting access"
+        permissions:
+          - "data:read"
+          - "analytics:read"
+          - "ai:query"
+
+      viewer:
+        description: "Basic read-only access"
+        permissions:
+          - "data:read:limited"
+          - "analytics:read:dashboards"
+
+      support:
+        description: "Cross-tenant support access (platform team only)"
+        permissions:
+          - "cross_tenant:read"
+          - "audit_log:read"
+        constraints:
+          requires_justification: true
+          max_session_duration_minutes: 60
+
+  # Attribute-Based Access Control (ABAC) rules
+  abac:
+    rules:
+      - name: "restrict_pii_access"
+        description: "Only users with pii_access attribute can view PII fields"
+        condition:
+          resource_classification: "pii"
+          user_attribute: "pii_access"
+          operator: "equals"
+          value: true
+        effect: "allow"
+
+      - name: "region_restriction"
+        description: "Users can only access data in allowed regions"
+        condition:
+          resource_region: "{resource.region}"
+          user_allowed_regions: "{user.allowed_regions}"
+          operator: "contains"
+        effect: "allow"
+
+      - name: "time_based_access"
+        description: "Restrict access outside business hours for non-admins"
+        condition:
+          user_role: "viewer"
+          current_hour: "{now.hour}"
+          business_hours: [9, 17]
+          operator: "between"
+        effect: "deny_outside"
+
+  # Resource-specific policies
+  resources:
+    partner_central_opportunities:
+      read:
+        allowed_roles: ["tenant_admin", "operator", "analyst", "viewer"]
+      write:
+        allowed_roles: ["tenant_admin", "operator"]
+        requires_approval: true
+        approval_workflow: "partner_central_write"
+
+    partner_central_actions:
+      create_opportunity:
+        allowed_roles: ["tenant_admin", "operator"]
+        requires_approval: true
+        requires_ticket_id: true
+
+      start_engagement:
+        allowed_roles: ["tenant_admin"]
+        requires_approval: true
+        requires_ticket_id: true
+        requires_secondary_approval: true
+
+    marketplace_metering:
+      emit_usage:
+        allowed_roles: ["tenant_admin", "operator"]
+        audit_all: true
+
+    analytics:
+      dashboards:
+        allowed_roles: ["tenant_admin", "operator", "analyst", "viewer"]
+      exports:
+        allowed_roles: ["tenant_admin", "operator", "analyst"]
+        max_records: 100000
+      raw_queries:
+        allowed_roles: ["tenant_admin", "operator"]
+        requires_audit: true
+
+  # Approval workflows
+  approval_workflows:
+    partner_central_write:
+      type: "single_approval"
+      approvers:
+        - role: "tenant_admin"
+      timeout_hours: 24
+      on_timeout: "reject"
+
+    high_value_action:
+      type: "dual_approval"
+      approvers:
+        - role: "tenant_admin"
+        - role: "platform_admin"
+      timeout_hours: 48
+      on_timeout: "reject"
+
+  # Default deny policy
+  default:
+    effect: "deny"
+    log_denials: true

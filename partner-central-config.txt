@@ -1,0 +1,433 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║             AWS PARTNER CENTRAL CONFIGURATION                             ║
+║             Generated: 2026-01-12                                         ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+===============================================================================
+ACCOUNT CONFIGURATION
+===============================================================================
+
+MANAGEMENT ACCOUNT (Primary)
+──────────────────────────────────────────────────────────────────────────────
+  Account ID:        313476888312
+  Account Name:      DiatonicAI
+  Organization ID:   o-eyf5fcwrr3
+  Current User:      dfortini-local
+  Email:             aws@dacvisuals.com
+  Purpose:           Partner Central IAM roles, billing, organization mgmt
+
+BUILDER ACCOUNT (Solutions Development)
+──────────────────────────────────────────────────────────────────────────────
+  Account ID:        916873234430
+  Account Name:      Diatonic Dev
+  Account Alias:     diatonic-dev-builder (use in Partner Central)
+  Email:             aws+diatonic-dev@dacvisuals.com
+  Purpose:           Deploy and test solutions for Partner Central verification
+
+OTHER MEMBER ACCOUNTS IN ORGANIZATION
+──────────────────────────────────────────────────────────────────────────────
+  038876987371 - Diatonic Visuals
+  819087822699 - Steve Heaney Investments
+  884537046127 - Live Smart Growth
+  479557895143 - Body Life Luxe Co
+  455303857245 - Minute Man Press Toledo
+  824156498500 - Diatonic Online
+  842990485193 - Diatonic AI
+
+===============================================================================
+IAM ROLES CREATED (Use these in Partner Central)
+===============================================================================
+
+✓ PARTNER CENTRAL ACCESS ROLE
+──────────────────────────────────────────────────────────────────────────────
+  Role Name:    AWSPartnerCentralAccess
+  ARN:          arn:aws:iam::313476888312:role/AWSPartnerCentralAccess
+  Purpose:      Main integration role for Partner Central solution verification
+  Permissions:  ReadOnlyAccess, AWSMarketplaceSellerFullAccess, Custom Partner Policy
+  External ID:  PartnerCentral (required for assuming role)
+
+✓ ACE USER ACCESS ROLE
+──────────────────────────────────────────────────────────────────────────────
+  Role Name:    AWSPartnerACEAccess
+  ARN:          arn:aws:iam::313476888312:role/AWSPartnerACEAccess
+  Purpose:      Role for AWS Customer Engagement (ACE) users
+  Permissions:  Restricted read access to EC2, S3, CloudFormation
+  External ID:  PartnerCentral
+
+✓ ALLIANCE TEAM ACCESS ROLE
+──────────────────────────────────────────────────────────────────────────────
+  Role Name:    AWSPartnerAllianceAccess
+  ARN:          arn:aws:iam::313476888312:role/AWSPartnerAllianceAccess
+  Purpose:      Role for AWS Alliance/Sales team members
+  Permissions:  ReadOnlyAccess, AWSMarketplaceSellerFullAccess
+  External ID:  PartnerCentral
+
+===============================================================================
+AWS CLI CONFIGURATION
+===============================================================================
+
+EXISTING AWS PROFILES IN ~/.aws/config
+──────────────────────────────────────────────────────────────────────────────
+  ✓ dfortini-local (default) - Management account direct access
+  ✓ partner-builder - Builder account via assumed role
+  ✓ online-824 - Diatonic Online (824156498500)
+  ✓ mgmt-842 - Diatonic AI (842990485193)
+
+TO USE BUILDER ACCOUNT
+──────────────────────────────────────────────────────────────────────────────
+  # Option 1: Use profile (recommended)
+  export AWS_PROFILE=partner-builder
+  aws sts get-caller-identity
+
+  # Option 2: Assume role manually
+  aws sts assume-role \
+    --role-arn arn:aws:iam::916873234430:role/OrganizationAccountAccessRole \
+    --role-session-name partner-builder
+
+  # Note: If you get "AccessDenied", you need to create the
+  # OrganizationAccountAccessRole in the builder account first.
+  # See: scripts/create-builder-account-role.sh
+
+===============================================================================
+PARTNER CENTRAL TASK COMPLETION CHECKLIST
+===============================================================================
+
+PHASE 1: IAM & ACCOUNT SETUP (HIGH PRIORITY)
+──────────────────────────────────────────────────────────────────────────────
+✓ Task 6:  Create IAM Roles (<30 min)
+           Status: COMPLETED AUTOMATICALLY
+
+□ Task 3:  Map Alliance Team to IAM Roles (<30 min)
+           1. Go to https://partnercentral.aws.amazon.com/
+           2. Settings > Team Management > Alliance Team
+           3. Click "Add IAM Role"
+           4. Enter: arn:aws:iam::313476888312:role/AWSPartnerAllianceAccess
+           5. Save
+
+□ Task 4:  Map ACE Users to IAM Roles (<5 min)
+           1. Settings > Team Management > ACE Users
+           2. Click "Add IAM Role"
+           3. Enter: arn:aws:iam::313476888312:role/AWSPartnerACEAccess
+           4. Save
+
+□ Task 5:  Assign User Role (<5 min)
+           1. Settings > Users
+           2. Find Drew Fortini
+           3. Assign: "Account Administrator" or "Solution Manager"
+           4. Save
+
+□ Task 15: Assign Cloud Admin (<5 min)
+           1. Settings > Team Management
+           2. Click "Assign Cloud Admin"
+           3. Select: Drew Fortini
+           4. Confirm
+
+□ Task 12: Invite Users to Partner Central (<5 min)
+           1. Settings > Users > Invite User
+           2. Add team member emails
+           3. Assign roles: Admin, Solution Manager, Marketing, Sales
+           4. Send invitations
+
+PHASE 2: ACCOUNT MIGRATION
+──────────────────────────────────────────────────────────────────────────────
+□ Task 1:  Schedule Migration to Partner Central in AWS Console (<4 hrs)
+           1. Look for migration banner in Partner Central
+           2. Click "Schedule Migration"
+           3. Select maintenance window
+           4. Confirm (AWS processes automatically)
+
+PHASE 3: SOLUTION DEVELOPMENT
+──────────────────────────────────────────────────────────────────────────────
+□ Task 14: Build First Software Solution (>30 min)
+           RECOMMENDATION: Showcase "Diatonic AI Nexus Workbench"
+
+           1. Solutions > Create Solution
+           2. Type: Software Solution
+           3. Details:
+              - Name: "Diatonic AI Nexus Workbench"
+              - Category: AI/ML, Container Management
+              - Services: ECR, ECS, Lambda, API Gateway, DynamoDB, Cognito
+              - Builder Account: 916873234430
+           4. Upload:
+              - Architecture diagram
+              - CloudFormation/Terraform templates
+              - README and deployment guide
+           5. Submit for Review
+
+           Resources in your repo:
+           - apps/diatonic-ai-workbench/ (submodule)
+           - infrastructure/terraform/core/ (ECR, Lambda, API Gateway, etc.)
+           - Dockerfile configurations
+
+□ Task 17: Build Services Solution (<10 min)
+           1. Solutions > Create Solution
+           2. Type: Consulting Services
+           3. Service Types:
+              - Cloud Migration
+              - DevOps Automation
+              - AI/ML Implementation
+              - Infrastructure as Code
+           4. Delivery: Remote, On-site, Hybrid
+           5. Add case studies/testimonials
+           6. Submit
+
+□ Task 9:  Build Managed Services Solution (<10 min)
+           1. Solutions > Create Solution
+           2. Type: Managed Services
+           3. Define offering:
+              - Name: "AWS Infrastructure Management & Optimization"
+              - Services: EC2, RDS, S3, Lambda, monitoring
+              - SLA: 99.9% uptime
+              - Pricing: Monthly retainer or per-resource
+           4. Upload service documentation
+           5. Submit
+
+PHASE 4: MARKETPLACE
+──────────────────────────────────────────────────────────────────────────────
+□ Task 7:  Create AWS Marketplace Listing (5 min)
+           1. Go to: https://aws.amazon.com/marketplace/management/
+           2. Create New Product
+           3. Type: Container (for AI Nexus Workbench)
+           4. Product details and pricing
+           5. Save as Draft
+
+□ Task 16: Learn AWS Marketplace Benefits (<30 min)
+           Self-paced learning:
+           - https://docs.aws.amazon.com/marketplace/latest/userguide/
+           - Pricing models: Free, BYOL, Usage-based, Contract, SaaS
+           - AWS fees: 3-15% (SaaS: 3%, AMI/Container: 15%)
+
+PHASE 5: OPPORTUNITY MANAGEMENT
+──────────────────────────────────────────────────────────────────────────────
+□ Task 2:  Create First Partner Originated Opportunity (>30 min)
+           1. Opportunities > Create Opportunity
+           2. Type: Partner Originated (PO)
+           3. Details:
+              - Customer name and AWS account (if known)
+              - Expected MRR
+              - Close date estimate
+              - AWS products/services
+              - Link to your solution
+           4. Submit
+
+           Benefits:
+           - Deal protection
+           - AWS co-selling eligibility
+           - Access to AWS Partner Solutions Architects
+           - AWS Marketplace Private Offers
+
+PHASE 6: COMPANY PROFILE
+──────────────────────────────────────────────────────────────────────────────
+□ Task 10: Update Company Profile - Technology Team Size (<5 min)
+           Settings > Company Profile > Team Information
+           Enter team size (e.g., 1-10, 11-50)
+
+□ Task 11: Update Company Profile - Marketing Team Size (<5 min)
+           Same section, enter marketing team size
+
+□ Task 13: Update Company Profile - Sales Team Size (<5 min)
+           Same section, enter sales team size
+
+PHASE 7: FINANCIAL
+──────────────────────────────────────────────────────────────────────────────
+□ Task 8:  Pay APN Fee (>30 min)
+
+           APN MEMBERSHIP TIERS:
+           ┌──────────────┬─────────────┬────────────────────────────────┐
+           │ Tier         │ Annual Cost │ Benefits                       │
+           ├──────────────┼─────────────┼────────────────────────────────┤
+           │ Registered   │ FREE        │ Basic access, limited benefits │
+           │ Select       │ $2,500      │ ⭐ RECOMMENDED FOR YOU        │
+           │ Advanced     │ $15,000     │ Full benefits, AWS funding     │
+           └──────────────┴─────────────┴────────────────────────────────┘
+
+           RECOMMENDATION: Select Tier ($2,500/year)
+           - AWS Marketplace eligibility
+           - Co-marketing support
+           - Partner training
+           - Qualified leads from AWS
+
+           To pay:
+           1. Settings > Membership
+           2. Select tier: "Select"
+           3. Click "Upgrade"
+           4. Enter payment info (card or AWS billing)
+           5. Complete payment
+
+===============================================================================
+BUILDER ACCOUNT REGISTRATION IN PARTNER CENTRAL
+===============================================================================
+
+STEPS TO REGISTER BUILDER ACCOUNT
+──────────────────────────────────────────────────────────────────────────────
+  1. Log into https://partnercentral.aws.amazon.com/
+  2. Navigate to: Settings > AWS Accounts
+  3. Click "Add Account"
+  4. Enter details:
+     - Account ID: 916873234430
+     - Account Alias: diatonic-dev-builder
+     - Account Type: Builder Account
+  5. Click "Verify Account"
+     (AWS verifies IAM roles in management account)
+  6. Click "Save"
+
+VERIFICATION REQUIREMENTS
+──────────────────────────────────────────────────────────────────────────────
+  Partner Central verifies:
+  ✓ IAM roles exist in management account (313476888312)
+  ✓ Trust policies allow Partner Central account (905418367684)
+  ✓ External ID is set to "PartnerCentral"
+  ✓ Roles have necessary permissions
+
+===============================================================================
+TROUBLESHOOTING
+===============================================================================
+
+ISSUE: Cannot access builder account (916873234430)
+──────────────────────────────────────────────────────────────────────────────
+CAUSE:
+  OrganizationAccountAccessRole may not exist in builder account
+
+SOLUTION:
+  Option 1: Create role via AWS Console
+    1. Log into builder account (916873234430) as root/admin
+    2. Go to IAM > Roles > Create Role
+    3. Trusted entity: AWS Account
+    4. Account ID: 313476888312 (management account)
+    5. Role name: OrganizationAccountAccessRole
+    6. Attach policy: AdministratorAccess
+    7. Create role
+
+  Option 2: Use CloudFormation
+    1. Log into builder account via console
+    2. Go to CloudFormation > Create Stack
+    3. Upload: /tmp/organization-access-role.yaml
+    4. Create stack
+
+  Option 3: Run creation script (if you have builder account access)
+    scripts/create-builder-account-role.sh
+
+ISSUE: "Access Denied" when creating IAM roles
+──────────────────────────────────────────────────────────────────────────────
+SOLUTION:
+  Ensure you're authenticated as dfortini-local in management account:
+
+  aws sts get-caller-identity
+  # Should show Account: 313476888312
+
+  If not, run:
+  unset AWS_PROFILE
+  # or
+  export AWS_PROFILE=dfortini-local
+
+ISSUE: Partner Central can't verify my account
+──────────────────────────────────────────────────────────────────────────────
+VERIFICATION CHECKLIST:
+  □ IAM roles are in MANAGEMENT account (313476888312), not builder
+  □ Trust policy allows account 905418367684
+  □ External ID is set to "PartnerCentral"
+  □ Roles have required permissions attached
+
+  To verify:
+  aws iam get-role --role-name AWSPartnerCentralAccess
+  aws iam list-attached-role-policies --role-name AWSPartnerCentralAccess
+
+===============================================================================
+TASK SUMMARY
+===============================================================================
+
+TIME ESTIMATES:
+──────────────────────────────────────────────────────────────────────────────
+  Automated Setup:      30 minutes   ✓ COMPLETED
+  Web UI Tasks:         2-3 hours    □ IN PROGRESS
+  Solution Building:    1-2 hours    □ PENDING
+  Learning/Review:      1 hour       □ PENDING
+  ──────────────────────────────────────────────────────
+  TOTAL:                4-6 hours
+
+PRIORITY ORDER:
+──────────────────────────────────────────────────────────────────────────────
+  1. HIGH:   Complete IAM role mapping (Tasks 3, 4, 5, 15, 12)
+  2. MEDIUM: Schedule migration (Task 1)
+  3. MEDIUM: Build first solution (Task 14)
+  4. MEDIUM: Pay APN fee (Task 8) - Required for full benefits
+  5. LOW:    Remaining tasks (2, 7, 9, 10-13, 16, 17)
+
+DEPENDENCIES:
+──────────────────────────────────────────────────────────────────────────────
+  Task 6 ──> Tasks 3, 4 (IAM roles must exist before mapping)
+       └──> Task 14 (Solutions need builder account registered)
+       └──> Task 8 (APN membership required for full features)
+
+===============================================================================
+RESOURCES & DOCUMENTATION
+===============================================================================
+
+LOCAL FILES
+──────────────────────────────────────────────────────────────────────────────
+  Full Setup Guide:
+    /home/daclab-ai/DEV/AWS-DevOps/docs/PARTNER-CENTRAL-SETUP.md
+
+  Scripts:
+    /home/daclab-ai/DEV/AWS-DevOps/scripts/setup-partner-central-iam.sh
+    /home/daclab-ai/DEV/AWS-DevOps/scripts/connect-builder-account.sh
+    /home/daclab-ai/DEV/AWS-DevOps/scripts/create-builder-account-role.sh
+    /home/daclab-ai/DEV/AWS-DevOps/scripts/partner-central-quickstart.sh
+
+AWS PARTNER CENTRAL URLS
+──────────────────────────────────────────────────────────────────────────────
+  Main Portal:          https://partnercentral.aws.amazon.com/
+  Marketplace Mgmt:     https://aws.amazon.com/marketplace/management/
+  Partner Programs:     https://aws.amazon.com/partners/programs/
+  Seller Guide:         https://docs.aws.amazon.com/marketplace/latest/userguide/
+  APN Overview:         https://aws.amazon.com/partners/
+
+SUPPORT CONTACTS
+──────────────────────────────────────────────────────────────────────────────
+  Partner Central Support:
+    https://support.console.aws.amazon.com/support/home
+
+  AWS Marketplace Seller Support:
+    https://aws.amazon.com/marketplace/management/contact-us
+
+  APN Customer Engagement (ACE):
+    Contact through Partner Central after registration
+
+===============================================================================
+NEXT IMMEDIATE STEPS
+===============================================================================
+
+1. ✓ IAM roles created in management account
+
+2. □ Go to Partner Central and add IAM roles:
+      https://partnercentral.aws.amazon.com/
+      Settings > IAM Roles > Add Role ARNs (use ARNs from above)
+
+3. □ Map team roles (Tasks 3, 4, 5, 15, 12)
+      Complete user and team assignments
+
+4. □ Register builder account:
+      Settings > AWS Accounts > Add Account (916873234430)
+
+5. □ Build first solution (Task 14):
+      Recommend showcasing: Diatonic AI Nexus Workbench
+      Use infrastructure code from: /home/daclab-ai/DEV/AWS-DevOps/infrastructure/
+
+6. □ Pay APN Select fee ($2,500):
+      Settings > Membership > Upgrade to Select
+
+7. □ Create first opportunity (Task 2):
+      Opportunities > Create Partner Originated Opportunity
+
+===============================================================================
+CONFIGURATION FILE VERSION
+===============================================================================
+Generated:     2026-01-12 20:52 UTC
+Last Updated:  2026-01-12 20:52 UTC
+Generated By:  Claude Code (Automated Partner Central Setup)
+
+To regenerate this file, run:
+  ./scripts/partner-central-quickstart.sh
+===============================================================================

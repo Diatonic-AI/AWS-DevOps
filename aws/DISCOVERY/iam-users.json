@@ -1,0 +1,60 @@
+{
+    "Users": [
+        {
+            "Path": "/",
+            "UserName": "amplify-diatonic-ai-dev",
+            "UserId": "AIDAUR7FNW34NAGV7CY2S",
+            "Arn": "arn:aws:iam::313476888312:user/amplify-diatonic-ai-dev",
+            "CreateDate": "2025-09-08T19:26:47+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "amplify-diatonic-ai-prod",
+            "UserId": "AIDAUR7FNW34EVG7LA5KA",
+            "Arn": "arn:aws:iam::313476888312:user/amplify-diatonic-ai-prod",
+            "CreateDate": "2025-09-08T19:27:47+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "amplify-diatonic-ai-staging",
+            "UserId": "AIDAUR7FNW34ERIXJLNNV",
+            "Arn": "arn:aws:iam::313476888312:user/amplify-diatonic-ai-staging",
+            "CreateDate": "2025-09-08T19:27:17+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "dfortini-local",
+            "UserId": "AIDAUR7FNW34DE36HQROR",
+            "Arn": "arn:aws:iam::313476888312:user/dfortini-local",
+            "CreateDate": "2025-08-25T05:04:31+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "diatonic-ai-cicd",
+            "UserId": "AIDAUR7FNW34GQIKYI3G2",
+            "Arn": "arn:aws:iam::313476888312:user/diatonic-ai-cicd",
+            "CreateDate": "2025-09-08T19:28:18+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "diatonic-workbench-cli-dev",
+            "UserId": "AIDAUR7FNW34ARBZBHUDR",
+            "Arn": "arn:aws:iam::313476888312:user/diatonic-workbench-cli-dev",
+            "CreateDate": "2025-09-17T07:48:59+00:00"
+        },
+        {
+            "Path": "/",
+            "UserName": "diatonic-workbench-cli-prod",
+            "UserId": "AIDAUR7FNW34I5PCXBC7D",
+            "Arn": "arn:aws:iam::313476888312:user/diatonic-workbench-cli-prod",
+            "CreateDate": "2025-09-17T07:51:43+00:00"
+        },
+        {
+            "Path": "/minio/",
+            "UserName": "minio-standalone-dev-minio-user",
+            "UserId": "AIDAUR7FNW34LYDRHFFJE",
+            "Arn": "arn:aws:iam::313476888312:user/minio/minio-standalone-dev-minio-user",
+            "CreateDate": "2025-09-07T17:36:29+00:00"
+        }
+    ]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "stripe-billing-handler",
+  "version": "1.0.0",
+  "description": "Stripe webhook handler for billing events",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No tests yet\""
+  },
+  "dependencies": {
+    "stripe": "^14.0.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

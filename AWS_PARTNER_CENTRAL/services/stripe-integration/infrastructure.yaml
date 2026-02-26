@@ -1,0 +1,498 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Stripe Integration Infrastructure with EventBridge (AWS-native approach)'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: prod
+    AllowedValues: [dev, staging, prod]
+
+  StripeSecretKeyPath:
+    Type: String
+    Default: /stripe/secret-key
+    Description: SSM Parameter path for Stripe secret key (fetched at runtime)
+
+  StripeAccountId:
+    Type: String
+    Default: acct_1NseEGJbLHnFoXGE
+    Description: Your Stripe account ID (found in Stripe Dashboard)
+
+  BudgetThreshold:
+    Type: Number
+    Default: 1000
+    Description: Budget threshold in USD
+
+  ClientOrganization:
+    Type: String
+    Default: Diatonic-AI
+
+  BillingProject:
+    Type: String
+    Default: global-org-tools
+
+  OrganizationalUnit:
+    Type: String
+    Default: ToolsAndResources
+
+  BillingAllocationID:
+    Type: String
+    Default: STRIPE-INT-001
+
+  Owner:
+    Type: String
+    Default: PlatformTeam
+
+  CostCenter:
+    Type: String
+    Default: Engineering
+
+  Project:
+    Type: String
+    Default: StripeIntegration
+
+Resources:
+  # DynamoDB Tables
+  BillingTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub stripe-billing-${Environment}
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      Tags:
+        - Key: ClientOrganization
+          Value: !Ref ClientOrganization
+        - Key: BillingProject
+          Value: !Ref BillingProject
+        - Key: OrganizationalUnit
+          Value: !Ref OrganizationalUnit
+        - Key: BillingAllocationID
+          Value: !Ref BillingAllocationID
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Owner
+          Value: !Ref Owner
+        - Key: CostCenter
+          Value: !Ref CostCenter
+        - Key: Project
+          Value: !Ref Project
+
+  SubscriptionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub stripe-subscriptions-${Environment}
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      Tags:
+        - Key: ClientOrganization
+          Value: !Ref ClientOrganization
+        - Key: BillingProject
+          Value: !Ref BillingProject
+        - Key: OrganizationalUnit
+          Value: !Ref OrganizationalUnit
+        - Key: BillingAllocationID
+          Value: !Ref BillingAllocationID
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Owner
+          Value: !Ref Owner
+        - Key: CostCenter
+          Value: !Ref CostCenter
+        - Key: Project
+          Value: !Ref Project
+
+  # SNS Topic for notifications
+  BillingNotificationsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub stripe-billing-notifications-${Environment}
+      Tags:
+        - Key: ClientOrganization
+          Value: !Ref ClientOrganization
+        - Key: BillingProject
+          Value: !Ref BillingProject
+        - Key: OrganizationalUnit
+          Value: !Ref OrganizationalUnit
+        - Key: BillingAllocationID
+          Value: !Ref BillingAllocationID
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Owner
+          Value: !Ref Owner
+        - Key: CostCenter
+          Value: !Ref CostCenter
+        - Key: Project
+          Value: !Ref Project
+
+  # IAM Role for Lambda functions
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub stripe-integration-lambda-role-${Environment}
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: CostExplorerAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ce:GetCostAndUsage
+                  - ce:GetUsageReport
+                Resource: '*'
+        - PolicyName: DynamoDBAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                Resource:
+                  - !GetAtt BillingTable.Arn
+                  - !GetAtt SubscriptionsTable.Arn
+        - PolicyName: SNSAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sns:Publish
+                Resource: !Ref BillingNotificationsTopic
+        - PolicyName: SSMAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${StripeSecretKeyPath}
+
+  # Cost Monitor Lambda Function
+  CostMonitorFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub stripe-cost-monitor-${Environment}
+      Runtime: nodejs18.x
+      Handler: index.handler
+      Code:
+        ZipFile: |
+          exports.handler = async (event) => { return { statusCode: 200, body: 'Placeholder - deploy with actual code' }; };
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Environment:
+        Variables:
+          STRIPE_SECRET_KEY_PATH: !Ref StripeSecretKeyPath
+          BUDGET_THRESHOLD: !Ref BudgetThreshold
+          SNS_TOPIC_ARN: !Ref BillingNotificationsTopic
+          BILLING_TABLE_NAME: !Ref BillingTable
+          SUBSCRIPTIONS_TABLE_NAME: !Ref SubscriptionsTable
+      Timeout: 300
+      MemorySize: 256
+      Tags:
+        - Key: ClientOrganization
+          Value: !Ref ClientOrganization
+        - Key: BillingProject
+          Value: !Ref BillingProject
+        - Key: OrganizationalUnit
+          Value: !Ref OrganizationalUnit
+        - Key: BillingAllocationID
+          Value: !Ref BillingAllocationID
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Owner
+          Value: !Ref Owner
+        - Key: CostCenter
+          Value: !Ref CostCenter
+        - Key: Project
+          Value: !Ref Project
+
+  # Billing Handler Lambda Function (EventBridge triggered)
+  BillingHandlerFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub stripe-billing-handler-${Environment}
+      Runtime: nodejs18.x
+      Handler: index.handler
+      Code:
+        ZipFile: |
+          exports.handler = async (event) => { return { statusCode: 200, body: 'Placeholder - deploy with actual code' }; };
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Environment:
+        Variables:
+          STRIPE_SECRET_KEY_PATH: !Ref StripeSecretKeyPath
+          SNS_TOPIC_ARN: !Ref BillingNotificationsTopic
+          BILLING_TABLE_NAME: !Ref BillingTable
+          SUBSCRIPTIONS_TABLE_NAME: !Ref SubscriptionsTable
+      Timeout: 30
+      MemorySize: 128
+      Tags:
+        - Key: ClientOrganization
+          Value: !Ref ClientOrganization
+        - Key: BillingProject
+          Value: !Ref BillingProject
+        - Key: OrganizationalUnit
+          Value: !Ref OrganizationalUnit
+        - Key: BillingAllocationID
+          Value: !Ref BillingAllocationID
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Owner
+          Value: !Ref Owner
+        - Key: CostCenter
+          Value: !Ref CostCenter
+        - Key: Project
+          Value: !Ref Project
+
+  # EventBridge Rule for Stripe events (partner event source)
+  StripeEventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub stripe-events-${Environment}
+      Description: Captures Stripe events from EventBridge partner integration
+      EventPattern:
+        source:
+          - prefix: "aws.partner/stripe.com"
+      State: ENABLED
+      Targets:
+        - Id: BillingHandlerTarget
+          Arn: !GetAtt BillingHandlerFunction.Arn
+
+  # Permission for EventBridge to invoke Billing Handler Lambda
+  StripeEventPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref BillingHandlerFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt StripeEventRule.Arn
+
+  # EventBridge Rule for daily cost monitoring
+  DailyCostCheckRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub stripe-daily-cost-check-${Environment}
+      Description: Daily cost monitoring for Stripe integration
+      ScheduleExpression: cron(0 6 * * ? *)
+      State: ENABLED
+      Targets:
+        - Id: CostMonitorTarget
+          Arn: !GetAtt CostMonitorFunction.Arn
+
+  DailyCostCheckPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref CostMonitorFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt DailyCostCheckRule.Arn
+
+  # Dead Letter Queue for failed events
+  EventDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub stripe-events-dlq-${Environment}
+      MessageRetentionPeriod: 1209600
+      Tags:
+        - Key: ClientOrganization
+          Value: !Ref ClientOrganization
+        - Key: Project
+          Value: !Ref Project
+        - Key: Environment
+          Value: !Ref Environment
+
+  # CloudWatch Dashboard for monitoring
+  MonitoringDashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: !Sub stripe-integration-${Environment}
+      DashboardBody: !Sub |
+        {
+          "widgets": [
+            {
+              "type": "metric",
+              "x": 0,
+              "y": 0,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  ["AWS/Lambda", "Invocations", "FunctionName", "${CostMonitorFunction}", {"label": "Cost Monitor Invocations"}],
+                  [".", "Duration", ".", ".", {"label": "Cost Monitor Duration"}],
+                  ["AWS/Lambda", "Invocations", "FunctionName", "${BillingHandlerFunction}", {"label": "Billing Handler Invocations"}],
+                  [".", "Duration", ".", ".", {"label": "Billing Handler Duration"}]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "Lambda Function Metrics",
+                "period": 300
+              }
+            },
+            {
+              "type": "metric",
+              "x": 12,
+              "y": 0,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  ["AWS/DynamoDB", "ConsumedReadCapacityUnits", "TableName", "${BillingTable}", {"label": "Billing Table Reads"}],
+                  [".", "ConsumedWriteCapacityUnits", ".", ".", {"label": "Billing Table Writes"}],
+                  ["AWS/DynamoDB", "ConsumedReadCapacityUnits", "TableName", "${SubscriptionsTable}", {"label": "Subscriptions Table Reads"}],
+                  [".", "ConsumedWriteCapacityUnits", ".", ".", {"label": "Subscriptions Table Writes"}]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "DynamoDB Metrics",
+                "period": 300
+              }
+            },
+            {
+              "type": "metric",
+              "x": 0,
+              "y": 6,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  ["AWS/Events", "Invocations", "RuleName", "${StripeEventRule}", {"label": "Stripe Events Received"}],
+                  [".", "FailedInvocations", ".", ".", {"label": "Failed Invocations"}],
+                  ["AWS/Lambda", "Errors", "FunctionName", "${BillingHandlerFunction}", {"label": "Lambda Errors"}]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "EventBridge & Error Metrics",
+                "period": 300
+              }
+            },
+            {
+              "type": "metric",
+              "x": 12,
+              "y": 6,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  ["AWS/SQS", "NumberOfMessagesReceived", "QueueName", "${EventDeadLetterQueue}", {"label": "DLQ Messages"}],
+                  [".", "ApproximateNumberOfMessagesVisible", ".", ".", {"label": "DLQ Pending"}]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "Dead Letter Queue",
+                "period": 300
+              }
+            }
+          ]
+        }
+
+  # CloudWatch Alarm for budget monitoring
+  BudgetAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub stripe-budget-alarm-${Environment}
+      AlarmDescription: Alarm when AWS costs exceed budget threshold
+      MetricName: EstimatedCharges
+      Namespace: AWS/Billing
+      Statistic: Maximum
+      Period: 86400
+      EvaluationPeriods: 1
+      Threshold: !Ref BudgetThreshold
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref BillingNotificationsTopic
+      Dimensions:
+        - Name: Currency
+          Value: USD
+
+  # Alarm for Lambda errors
+  LambdaErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub stripe-lambda-errors-${Environment}
+      AlarmDescription: Alarm when billing handler has errors
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref BillingNotificationsTopic
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref BillingHandlerFunction
+
+Outputs:
+  BillingTableName:
+    Description: DynamoDB table for billing records
+    Value: !Ref BillingTable
+    Export:
+      Name: !Sub BillingTable-${Environment}
+
+  SubscriptionsTableName:
+    Description: DynamoDB table for subscriptions
+    Value: !Ref SubscriptionsTable
+    Export:
+      Name: !Sub SubscriptionsTable-${Environment}
+
+  NotificationTopicArn:
+    Description: SNS topic ARN for notifications
+    Value: !Ref BillingNotificationsTopic
+    Export:
+      Name: !Sub BillingNotificationsTopic-${Environment}
+
+  CostMonitorFunctionArn:
+    Description: Cost Monitor Lambda function ARN
+    Value: !GetAtt CostMonitorFunction.Arn
+    Export:
+      Name: !Sub CostMonitorFunction-${Environment}
+
+  BillingHandlerFunctionArn:
+    Description: Billing Handler Lambda function ARN
+    Value: !GetAtt BillingHandlerFunction.Arn
+    Export:
+      Name: !Sub BillingHandlerFunction-${Environment}
+
+  StripeEventRuleName:
+    Description: EventBridge rule name for Stripe events
+    Value: !Ref StripeEventRule
+    Export:
+      Name: !Sub StripeEventRule-${Environment}
+
+  DeadLetterQueueUrl:
+    Description: DLQ URL for failed events
+    Value: !Ref EventDeadLetterQueue
+    Export:
+      Name: !Sub StripeDLQ-${Environment}
+
+  DashboardUrl:
+    Description: CloudWatch Dashboard URL
+    Value: !Sub https://${AWS::Region}.console.aws.amazon.com/cloudwatch/home?region=${AWS::Region}#dashboards:name=stripe-integration-${Environment}

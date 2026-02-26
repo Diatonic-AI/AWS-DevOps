@@ -107,8 +107,7 @@ resource "aws_ecr_repository_policy" "ai_nexus_workbench" {
   })
 }
 
-# Data source to get current AWS account ID
-data "aws_caller_identity" "current" {}
+# Note: aws_caller_identity data source is defined in backend.tf
 
 # Outputs for the ECR repository
 output "ai_nexus_workbench_ecr_repository_url" {

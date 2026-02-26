@@ -1,0 +1,33 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "CostExplorerFullAccess",
+            "Effect": "Allow",
+            "Action": [
+                "ce:*",
+                "budgets:ViewBudget",
+                "budgets:DescribeBudgets",
+                "budgets:DescribeBudgetAction*",
+                "budgets:DescribeBudgetActions*",
+                "budgets:DescribeBudgetsForAccount",
+                "cur:DescribeReportDefinitions",
+                "cur:GetClassicReport",
+                "cur:GetRightsizingRecommendation",
+                "aws-portal:ViewBilling",
+                "aws-portal:ViewAccount",
+                "aws-portal:ViewUsage"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "CostAndUsageReportAccess",
+            "Effect": "Allow",
+            "Action": [
+                "cur:DescribeReportDefinitions",
+                "cur:GetClassicReport"
+            ],
+            "Resource": "*"
+        }
+    ]
+}

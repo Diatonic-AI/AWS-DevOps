@@ -1,0 +1,12 @@
+cloudevents:
+  version: "1.0"
+  types:
+    - type: "pcw.ingestion.run.started"
+      required: ["id","source","type","time","subject","data"]
+      dataSchema: "schemas/events/ingestion-run-started.json"
+    - type: "pcw.partnercentral.opportunity.created"
+      dataSchema: "schemas/events/partnercentral-opportunity.json"
+    - type: "pcw.marketplace.metering.emitted"
+      dataSchema: "schemas/events/marketplace-metering.json"
+    - type: "pcw.approval.requested"
+      dataSchema: "schemas/events/approval-requested.json"

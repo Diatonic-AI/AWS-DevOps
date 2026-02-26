@@ -1,0 +1,16 @@
+{
+  "name": "stripe-cost-monitor",
+  "version": "1.0.0",
+  "description": "AWS cost monitoring with Stripe integration",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No tests yet\""
+  },
+  "dependencies": {
+    "stripe": "^14.0.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

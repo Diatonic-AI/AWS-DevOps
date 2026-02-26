@@ -1,0 +1,16 @@
+{
+  "name": "client-billing-payment",
+  "version": "1.0.0",
+  "description": "Lambda function for Stripe payment processing",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "zip -r function.zip . && aws lambda update-function-code --function-name client-billing-payment --zip-file fileb://function.zip"
+  },
+  "dependencies": {
+    "stripe": "^14.x",
+    "@aws-sdk/client-secrets-manager": "^3.x",
+    "@aws-sdk/client-dynamodb": "^3.x",
+    "@aws-sdk/lib-dynamodb": "^3.x",
+    "@aws-sdk/client-ses": "^3.x"
+  }
+}

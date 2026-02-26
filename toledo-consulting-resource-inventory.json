@@ -1,0 +1,156 @@
+{
+  "organization_id": "mmp-toledo-consulting",
+  "company_details": {
+    "name": "Toledo Consulting & Contracting LLC",
+    "website": "https://www.toledoconsulting.net/",
+    "domain": "toledoconsulting.net",
+    "uei": "MKK3NH3NRC95",
+    "cage_code": "83JT2",
+    "duns": "155808251",
+    "certification": "veteran-owned"
+  },
+  "aws_account": {
+    "account_id": "313476888312",
+    "organization_id": "o-eyf5fcwrr3",
+    "region": "us-east-2"
+  },
+  "organizational_structure": {
+    "organizational_unit": {
+      "name": "Partners",
+      "id": "ou-295b-6ku3yklg",
+      "arn": "arn:aws:organizations::313476888312:ou/o-eyf5fcwrr3/ou-295b-6ku3yklg",
+      "parent": "Root (r-295b)",
+      "purpose": "Container for all partner organizations including Toledo Consulting"
+    }
+  },
+  "resource_groups": {
+    "partners_toledo_consulting": {
+      "name": "partners-toledo-consulting",
+      "arn": "arn:aws:resource-groups:us-east-2:313476888312:group/partners-toledo-consulting",
+      "description": "Resource group for Toledo Consulting partnership",
+      "tags": {
+        "Partner": "toledo-consulting",
+        "CompanyType": "contractor", 
+        "Services": "ai-consulting",
+        "Certification": "veteran-owned"
+      },
+      "resource_query": {
+        "type": "TAG_FILTERS_1_0",
+        "query": "Resources tagged with Partner=toledo-consulting"
+      }
+    }
+  },
+  "iam_resources": {
+    "policies": {
+      "toledo_consulting_partner_policy": {
+        "name": "ToledoConsultingPartnerPolicy",
+        "arn": "arn:aws:iam::313476888312:policy/ToledoConsultingPartnerPolicy",
+        "policy_id": "ANPAUR7FNW34HZXTGGMA2",
+        "description": "IAM policy for Toledo Consulting partner dashboard access",
+        "version": "v1",
+        "attachment_count": 1,
+        "created": "2026-01-23T21:41:44+00:00",
+        "permissions_summary": [
+          "CloudWatch metrics and alarms (read-only)",
+          "EC2 instance management (tagged resources only)",
+          "RDS instance management (tagged resources only)", 
+          "S3 bucket access (listing and location)",
+          "Lambda function access (tagged resources only)",
+          "Resource group management (partner-specific)",
+          "Tag-based resource filtering"
+        ]
+      }
+    },
+    "groups": {
+      "toledo_consulting_partners": {
+        "name": "ToledoConsultingPartners",
+        "arn": "arn:aws:iam::313476888312:group/ToledoConsultingPartners",
+        "group_id": "AGPAUR7FNW34AU3RZGQKZ",
+        "created": "2026-01-23T21:41:49+00:00",
+        "attached_policies": [
+          "arn:aws:iam::313476888312:policy/ToledoConsultingPartnerPolicy"
+        ],
+        "members": [
+          "toledo-consulting-admin"
+        ]
+      }
+    },
+    "users": {
+      "toledo_consulting_admin": {
+        "username": "toledo-consulting-admin",
+        "user_id": "AIDAUR7FNW34OCWWG4OHY",
+        "arn": "arn:aws:iam::313476888312:user/toledo-consulting-admin",
+        "created": "2026-01-23T21:42:04+00:00",
+        "tags": {
+          "Partner": "toledo-consulting",
+          "Company": "Toledo-Consulting-LLC",
+          "Role": "admin"
+        },
+        "group_memberships": [
+          "ToledoConsultingPartners"
+        ],
+        "login_profile": {
+          "console_access": true,
+          "password_reset_required": false,
+          "final_password": "X*d^9LdlwU&Ahh$e",
+          "password_status": "ready-to-use"
+        }
+      }
+    }
+  },
+  "tagged_resources": {
+    "current_resources": [
+      {
+        "arn": "arn:aws:resource-groups:us-east-2:313476888312:group/partners-toledo-consulting",
+        "type": "AWS::ResourceGroups::Group",
+        "tags": {
+          "Partner": "toledo-consulting",
+          "CompanyType": "contractor",
+          "Services": "ai-consulting", 
+          "Certification": "veteran-owned"
+        }
+      }
+    ],
+    "tag_filter": "Partner=toledo-consulting",
+    "note": "Any AWS resource tagged with 'Partner=toledo-consulting' will automatically be included in the resource group and accessible to the partner"
+  },
+  "access_control_summary": {
+    "dashboard_permissions": {
+      "read_access": [
+        "CloudWatch metrics and alarms",
+        "EC2 instances and status", 
+        "RDS instances",
+        "S3 buckets (listing and location)",
+        "Lambda functions"
+      ],
+      "manage_access": [
+        "EC2 start/stop/reboot (tagged resources only)",
+        "RDS start/stop (tagged resources only)",
+        "Lambda invoke (tagged resources only)",
+        "Resource group management (partner-specific)"
+      ]
+    },
+    "security_boundaries": [
+      "All permissions constrained by resource tags",
+      "Principal tag requirements for sensitive operations", 
+      "Resource-specific conditions for management actions"
+    ]
+  },
+  "dashboard_readiness": {
+    "status": "Infrastructure Ready",
+    "next_steps": [
+      "Deploy dashboard application resources with Partner=toledo-consulting tag",
+      "Set up API Gateway endpoints for partner dashboard",
+      "Configure Lambda functions for dashboard backend",
+      "Create CloudWatch dashboard with partner-specific metrics",
+      "Set up S3 bucket for dashboard assets and configurations"
+    ],
+    "resource_tagging_requirement": "All dashboard resources must be tagged with 'Partner=toledo-consulting' to ensure partner access"
+  },
+  "contact_information": {
+    "aws_console_url": "https://313476888312.signin.aws.amazon.com/console",
+    "username": "toledo-consulting-admin",
+    "final_password": "X*d^9LdlwU&Ahh$e (ready to use)",
+    "resource_group_console": "https://console.aws.amazon.com/resource-groups/group/partners-toledo-consulting"
+  }
+}

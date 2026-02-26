@@ -1,0 +1,38 @@
+connectors:
+  partner_central:
+    enabled: true
+    mode: "hybrid"          # batch | streaming | hybrid
+    schedule_cron: "0 */6 * * *"
+    entities:
+      - opportunities
+      - leads
+      - solutions
+      - profiles
+    write_actions:
+      - create_opportunity
+      - associate_opportunity
+      - start_engagement
+  marketplace:
+    enabled: true
+    schedule_cron: "0 2 * * *"
+    entities:
+      - products
+      - offers
+      - subscriptions
+      - entitlements
+    write_actions:
+      - publish_change_set
+      - emit_meter_usage
+  stripe:
+    enabled: true
+    mode: "streaming"       # batch | streaming | hybrid
+    entities:
+      - customers
+      - subscriptions
+      - invoices
+      - payments
+    write_actions:
+      - create_customer
+      - create_subscription
+      - create_invoice
+      - create_payment_intent

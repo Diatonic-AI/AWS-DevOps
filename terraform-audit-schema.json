@@ -1,0 +1,161 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Terraform State Audit & Drift Report",
+  "description": "Comparison between AWS actual resources and Terraform-managed resources",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "generated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "terraform_workspaces": {
+          "type": "array",
+          "description": "List of Terraform workspace directories analyzed",
+          "items": { "type": "string" }
+        },
+        "aws_inventory_file": {
+          "type": "string",
+          "description": "Path to AWS inventory JSON file used for comparison"
+        },
+        "account_id": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "total_aws_resources": {
+          "type": "number",
+          "description": "Total resources discovered in AWS"
+        },
+        "total_terraform_managed": {
+          "type": "number",
+          "description": "Total resources managed by Terraform"
+        },
+        "total_unmanaged": {
+          "type": "number",
+          "description": "Resources in AWS but not in Terraform"
+        },
+        "total_orphaned": {
+          "type": "number",
+          "description": "Resources in Terraform but not in AWS (drift/deleted)"
+        },
+        "coverage_percentage": {
+          "type": "number",
+          "description": "Percentage of AWS resources managed by Terraform"
+        }
+      }
+    },
+    "terraform_state": {
+      "type": "object",
+      "properties": {
+        "workspaces": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": { "type": "string" },
+              "state_version": { "type": "number" },
+              "terraform_version": { "type": "string" },
+              "resources": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": { "type": "string" },
+                    "name": { "type": "string" },
+                    "provider": { "type": "string" },
+                    "mode": { "type": "string" },
+                    "instances": { "type": "array" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "resource_counts_by_type": {
+          "type": "object",
+          "additionalProperties": { "type": "number" }
+        }
+      }
+    },
+    "unmanaged_resources": {
+      "type": "object",
+      "description": "Resources that exist in AWS but are NOT managed by Terraform",
+      "properties": {
+        "by_service": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "resource_id": { "type": "string" },
+                "resource_name": { "type": "string" },
+                "resource_arn": { "type": "string" },
+                "region": { "type": "string" },
+                "resource_type_aws": { "type": "string" },
+                "resource_type_terraform": { "type": "string" },
+                "import_command": { "type": "string" },
+                "terraform_address": { "type": "string" },
+                "tags": { "type": "object" }
+              }
+            }
+          }
+        },
+        "total_count": { "type": "number" }
+      }
+    },
+    "orphaned_resources": {
+      "type": "object",
+      "description": "Resources in Terraform state but NOT found in AWS (potential drift)",
+      "properties": {
+        "by_workspace": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "terraform_address": { "type": "string" },
+                "resource_type": { "type": "string" },
+                "resource_id": { "type": "string" },
+                "workspace_path": { "type": "string" }
+              }
+            }
+          }
+        },
+        "total_count": { "type": "number" }
+      }
+    },
+    "import_plan": {
+      "type": "object",
+      "description": "Generated terraform import commands organized by priority",
+      "properties": {
+        "high_priority": {
+          "type": "array",
+          "description": "Critical infrastructure that should be imported first",
+          "items": { "type": "string" }
+        },
+        "medium_priority": {
+          "type": "array",
+          "description": "Important resources to import",
+          "items": { "type": "string" }
+        },
+        "low_priority": {
+          "type": "array",
+          "description": "Optional resources to import",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  },
+  "required": ["metadata", "summary", "terraform_state", "unmanaged_resources", "import_plan"]
+}

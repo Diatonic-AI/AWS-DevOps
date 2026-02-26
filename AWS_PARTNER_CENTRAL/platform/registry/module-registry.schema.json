@@ -1,0 +1,208 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://pcw.platform/schemas/module-registry.schema.json",
+  "title": "Module Registry Schema",
+  "description": "Schema for modules in the internal marketplace",
+  "type": "object",
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "apiVersion": {
+      "type": "string",
+      "const": "pcw.platform/v1",
+      "description": "API version for this module manifest"
+    },
+    "kind": {
+      "type": "string",
+      "enum": ["Module"],
+      "description": "Resource kind"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["name", "version", "description"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)*$",
+          "description": "Unique module identifier (e.g., connector.partner-central.opportunities)"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(-[a-zA-Z0-9]+)?$",
+          "description": "Semantic version (e.g., 1.0.0, 0.1.0-beta)"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Human-readable description of the module"
+        },
+        "author": {
+          "type": "string",
+          "description": "Module author or maintainer"
+        },
+        "license": {
+          "type": "string",
+          "description": "License identifier (e.g., MIT, Apache-2.0, Proprietary)"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Searchable tags for discovery"
+        },
+        "documentation_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Link to module documentation"
+        },
+        "support_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Link to support resources"
+        }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "required": ["type", "tenancy"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["connector", "pipeline", "dashboard", "agent", "model", "tool"],
+          "description": "Module type category"
+        },
+        "tenancy": {
+          "type": "object",
+          "required": ["compatible_models"],
+          "properties": {
+            "compatible_models": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["pooled_compute_isolated_data", "siloed", "hybrid"]
+              },
+              "minItems": 1,
+              "description": "Compatible tenancy models"
+            }
+          }
+        },
+        "permissions": {
+          "type": "object",
+          "properties": {
+            "aws": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Required AWS IAM permissions"
+            },
+            "platform": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Required platform-level permissions"
+            }
+          }
+        },
+        "produces": {
+          "type": "object",
+          "properties": {
+            "datasets": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "S3 prefixes or dataset identifiers produced"
+            },
+            "events": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "CloudEvent types emitted"
+            },
+            "metrics": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Metrics published"
+            }
+          }
+        },
+        "consumes": {
+          "type": "object",
+          "properties": {
+            "datasets": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "S3 prefixes or dataset identifiers consumed"
+            },
+            "events": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "CloudEvent types subscribed to"
+            }
+          }
+        },
+        "dependsOn": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Module dependencies (by name)"
+        },
+        "costHints": {
+          "type": "object",
+          "properties": {
+            "expected_monthly_usd_range": {
+              "type": "string",
+              "pattern": "^\\d+-\\d+$",
+              "description": "Expected monthly cost range (e.g., 50-250)"
+            },
+            "cost_drivers": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Primary cost drivers (e.g., api_calls, storage, compute)"
+            }
+          }
+        },
+        "guardrails": {
+          "type": "object",
+          "properties": {
+            "requires_action_approval": {
+              "type": "boolean",
+              "description": "Whether write actions require approval"
+            },
+            "pii_policy": {
+              "type": "string",
+              "enum": ["none", "standard_redaction_v1", "aggressive_redaction_v1"],
+              "description": "PII handling policy"
+            },
+            "rate_limits": {
+              "type": "object",
+              "properties": {
+                "requests_per_minute": { "type": "integer" },
+                "records_per_run": { "type": "integer" }
+              }
+            }
+          }
+        },
+        "configuration": {
+          "type": "object",
+          "properties": {
+            "schema": {
+              "type": "object",
+              "description": "JSON Schema for module configuration"
+            },
+            "defaults": {
+              "type": "object",
+              "description": "Default configuration values"
+            }
+          }
+        },
+        "health": {
+          "type": "object",
+          "properties": {
+            "endpoint": {
+              "type": "string",
+              "description": "Health check endpoint path"
+            },
+            "interval_seconds": {
+              "type": "integer",
+              "minimum": 10,
+              "description": "Health check interval"
+            }
+          }
+        }
+      }
+    }
+  }
+}

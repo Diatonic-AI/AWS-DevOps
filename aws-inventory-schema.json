@@ -1,0 +1,178 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AWS Infrastructure Inventory",
+  "description": "Complete inventory of AWS resources across all accounts and regions (excluding Amplify deployments)",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "generated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of inventory generation"
+        },
+        "organization_id": {
+          "type": "string",
+          "description": "AWS Organization ID"
+        },
+        "master_account_id": {
+          "type": "string",
+          "description": "Master/Management account ID"
+        },
+        "regions_scanned": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of AWS regions included in scan"
+        },
+        "accounts_scanned": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "account_id": { "type": "string" },
+              "account_name": { "type": "string" },
+              "status": { "type": "string" }
+            }
+          }
+        },
+        "version": {
+          "type": "string",
+          "description": "Schema version"
+        },
+        "scan_duration_seconds": {
+          "type": "number",
+          "description": "Total time taken for discovery"
+        }
+      },
+      "required": ["generated_at", "organization_id", "master_account_id", "version"]
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "total_resources": { "type": "number" },
+        "resources_by_service": {
+          "type": "object",
+          "additionalProperties": { "type": "number" }
+        },
+        "resources_by_region": {
+          "type": "object",
+          "additionalProperties": { "type": "number" }
+        },
+        "resources_by_account": {
+          "type": "object",
+          "additionalProperties": { "type": "number" }
+        },
+        "estimated_monthly_cost": {
+          "type": "number",
+          "description": "Estimated monthly cost in USD (if available)"
+        }
+      }
+    },
+    "accounts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "account_id": { "type": "string" },
+          "account_name": { "type": "string" },
+          "regions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "region": { "type": "string" },
+                "services": {
+                  "type": "object",
+                  "properties": {
+                    "compute": {
+                      "type": "object",
+                      "properties": {
+                        "ec2_instances": { "type": "array" },
+                        "ecs_clusters": { "type": "array" },
+                        "ecs_services": { "type": "array" },
+                        "ecs_tasks": { "type": "array" },
+                        "lambda_functions": { "type": "array" }
+                      }
+                    },
+                    "storage": {
+                      "type": "object",
+                      "properties": {
+                        "s3_buckets": { "type": "array" },
+                        "ebs_volumes": { "type": "array" },
+                        "efs_filesystems": { "type": "array" }
+                      }
+                    },
+                    "database": {
+                      "type": "object",
+                      "properties": {
+                        "dynamodb_tables": { "type": "array" },
+                        "rds_instances": { "type": "array" },
+                        "rds_clusters": { "type": "array" }
+                      }
+                    },
+                    "networking": {
+                      "type": "object",
+                      "properties": {
+                        "vpcs": { "type": "array" },
+                        "subnets": { "type": "array" },
+                        "security_groups": { "type": "array" },
+                        "load_balancers": { "type": "array" },
+                        "api_gateways": { "type": "array" },
+                        "cloudfront_distributions": { "type": "array" }
+                      }
+                    },
+                    "containers": {
+                      "type": "object",
+                      "properties": {
+                        "ecr_repositories": { "type": "array" }
+                      }
+                    },
+                    "security": {
+                      "type": "object",
+                      "properties": {
+                        "iam_roles": { "type": "array" },
+                        "iam_policies": { "type": "array" },
+                        "secrets": { "type": "array" },
+                        "kms_keys": { "type": "array" }
+                      }
+                    },
+                    "dns": {
+                      "type": "object",
+                      "properties": {
+                        "route53_zones": { "type": "array" },
+                        "route53_records": { "type": "array" }
+                      }
+                    },
+                    "auth": {
+                      "type": "object",
+                      "properties": {
+                        "cognito_user_pools": { "type": "array" },
+                        "cognito_identity_pools": { "type": "array" }
+                      }
+                    },
+                    "monitoring": {
+                      "type": "object",
+                      "properties": {
+                        "cloudwatch_alarms": { "type": "array" },
+                        "cloudwatch_log_groups": { "type": "array" }
+                      }
+                    },
+                    "messaging": {
+                      "type": "object",
+                      "properties": {
+                        "sns_topics": { "type": "array" },
+                        "sqs_queues": { "type": "array" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": ["metadata", "summary", "accounts"]
+}

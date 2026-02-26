@@ -1,0 +1,15 @@
+{
+    "TableNames": [
+        "Comment-dvz5kkhygnfd7e4ikckwbmxzhi-NONE",
+        "ContentDocumentation-dvz5kkhygnfd7e4ikckwbmxzhi-NONE",
+        "ContentEducation-dvz5kkhygnfd7e4ikckwbmxzhi-NONE",
+        "ContentNews-dvz5kkhygnfd7e4ikckwbmxzhi-NONE",
+        "ContentResources-dvz5kkhygnfd7e4ikckwbmxzhi-NONE",
+        "ContentWorkforceTools-dvz5kkhygnfd7e4ikckwbmxzhi-NONE",
+        "Tag-dvz5kkhygnfd7e4ikckwbmxzhi-NONE",
+        "UserProfile-dvz5kkhygnfd7e4ikckwbmxzhi-NONE",
+        "UserSubscription-dvz5kkhygnfd7e4ikckwbmxzhi-NONE",
+        "VaultSyncStatus-dvz5kkhygnfd7e4ikckwbmxzhi-NONE",
+        "aiwh-prod-ddb-hub"
+    ]
+}

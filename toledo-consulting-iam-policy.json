@@ -1,0 +1,74 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PartnerDashboardAccess",
+            "Effect": "Allow",
+            "Action": [
+                "cloudwatch:GetMetricStatistics",
+                "cloudwatch:ListMetrics",
+                "cloudwatch:GetMetricData",
+                "cloudwatch:DescribeAlarms",
+                "ec2:DescribeInstances",
+                "ec2:DescribeInstanceStatus",
+                "rds:DescribeDBInstances",
+                "s3:ListBucket",
+                "s3:GetBucketLocation",
+                "s3:ListAllMyBuckets",
+                "lambda:ListFunctions",
+                "lambda:GetFunction",
+                "resource-groups:GetGroup",
+                "resource-groups:ListGroupResources",
+                "resource-groups:SearchResources",
+                "tag:GetResources",
+                "tag:GetTagKeys",
+                "tag:GetTagValues",
+                "ce:GetCostAndUsage",
+                "ce:GetDimensionValues",
+                "ce:GetReservationCoverage",
+                "ce:GetReservationPurchaseRecommendation",
+                "ce:GetReservationUtilization",
+                "ce:GetUsageReport",
+                "ce:ListCostCategoryDefinitions",
+                "ce:GetCostCategories",
+                "ce:GetUsageReport",
+                "budgets:ViewBudget",
+                "budgets:DescribeBudgets"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "StringEquals": {
+                    "aws:PrincipalTag/Partner": "toledo-consulting"
+                }
+            }
+        },
+        {
+            "Sid": "PartnerResourceGroupAccess",
+            "Effect": "Allow",
+            "Action": [
+                "resource-groups:*"
+            ],
+            "Resource": "arn:aws:resource-groups:*:313476888312:group/partners-toledo-consulting"
+        },
+        {
+            "Sid": "PartnerTaggedResourcesOnly",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:StartInstances",
+                "ec2:StopInstances",
+                "ec2:RebootInstances",
+                "rds:StartDBInstance",
+                "rds:StopDBInstance",
+                "lambda:InvokeFunction"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "StringEquals": {
+                    "ec2:ResourceTag/Partner": "toledo-consulting",
+                    "rds:db-tag/Partner": "toledo-consulting",
+                    "lambda:ResourceTag/Partner": "toledo-consulting"
+                }
+            }
+        }
+    ]
+}

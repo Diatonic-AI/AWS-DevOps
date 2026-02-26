@@ -1,0 +1,150 @@
+# Feature Flags Configuration
+# Controls gradual rollout and A/B testing of features
+
+feature_flags:
+  # Global flags (apply to all tenants unless overridden)
+  global:
+    # Core platform features
+    multi_region_support:
+      enabled: false
+      description: "Enable multi-region data residency"
+      rollout_percentage: 0
+
+    advanced_analytics:
+      enabled: true
+      description: "Advanced analytics dashboards and exports"
+      plan_requirements: ["scale", "enterprise"]
+
+    ai_recommendations:
+      enabled: true
+      description: "AI-powered recommendations and insights"
+      plan_requirements: ["scale", "enterprise"]
+
+    ai_agents:
+      enabled: false
+      description: "Autonomous AI agents for task automation"
+      plan_requirements: ["enterprise"]
+      rollout_percentage: 10
+
+    real_time_streaming:
+      enabled: false
+      description: "Real-time data streaming via WebSocket/Kinesis"
+      rollout_percentage: 25
+
+    # Partner Central features
+    partner_central_write:
+      enabled: true
+      description: "Write operations to Partner Central (with approval)"
+      requires_approval_mode: true
+
+    partner_central_auto_sync:
+      enabled: true
+      description: "Automatic periodic sync with Partner Central"
+      default_interval_hours: 6
+
+    partner_central_webhooks:
+      enabled: false
+      description: "Receive webhooks from Partner Central events"
+      rollout_percentage: 0
+
+    # Marketplace features
+    marketplace_metering:
+      enabled: true
+      description: "Usage metering for Marketplace subscriptions"
+
+    marketplace_private_offers:
+      enabled: false
+      description: "Create and manage private offers"
+      plan_requirements: ["enterprise"]
+
+    # Data quality features
+    dq_anomaly_detection:
+      enabled: true
+      description: "ML-based anomaly detection in data quality"
+      plan_requirements: ["scale", "enterprise"]
+
+    dq_auto_remediation:
+      enabled: false
+      description: "Automatic remediation of data quality issues"
+      rollout_percentage: 5
+
+    # UI features
+    new_dashboard_ui:
+      enabled: false
+      description: "Redesigned dashboard experience"
+      rollout_percentage: 20
+
+    dark_mode:
+      enabled: true
+      description: "Dark mode theme support"
+
+    custom_branding:
+      enabled: true
+      description: "Custom logo and colors"
+      plan_requirements: ["scale", "enterprise"]
+
+  # Tenant-specific overrides
+  tenant_overrides:
+    # Example: Enable beta features for specific tenants
+    "acme-corp":
+      ai_agents:
+        enabled: true
+        override_reason: "Beta program participant"
+      new_dashboard_ui:
+        enabled: true
+        override_reason: "Early adopter feedback program"
+      marketplace_private_offers:
+        enabled: true
+
+    "startup-xyz":
+      # Disable a feature that's normally enabled for their plan
+      advanced_analytics:
+        enabled: false
+        override_reason: "Onboarding - enabling in phase 2"
+
+  # Environment-specific settings
+  environments:
+    dev:
+      # Enable all features in dev for testing
+      enable_all_features: true
+      override_rollout_percentages: 100
+
+    stage:
+      # Match production rollout percentages
+      enable_all_features: false
+
+    prod:
+      enable_all_features: false
+      # Conservative rollout
+
+  # Feature flag evaluation rules
+  evaluation:
+    # Order of precedence (highest to lowest):
+    # 1. Tenant-specific override
+    # 2. Environment setting
+    # 3. Plan requirements check
+    # 4. Rollout percentage
+    # 5. Global default
+
+    cache_ttl_seconds: 60
+    log_evaluations: true
+    analytics_enabled: true
+
+  # A/B test configurations
+  experiments:
+    - name: "new_onboarding_flow"
+      description: "Test new user onboarding experience"
+      variants:
+        - name: "control"
+          weight: 50
+        - name: "new_flow"
+          weight: 50
+      targeting:
+        new_users_only: true
+      metrics:
+        - "onboarding_completion_rate"
+        - "time_to_first_action"
+        - "7_day_retention"
+      status: "running"
+      start_date: "2024-01-15"
+      end_date: "2024-02-15"

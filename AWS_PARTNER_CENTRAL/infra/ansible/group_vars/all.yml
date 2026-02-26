@@ -1,0 +1,45 @@
+---
+# Global variables for all hosts
+
+# Project settings
+project_name: pcw
+project_full_name: "Partner Central Wrapper Platform"
+
+# AWS settings (can be overridden per environment)
+aws_default_region: us-east-1
+
+# Package versions
+docker_version: "24.0"
+terraform_version: "1.6.6"
+python_version: "3.11"
+nodejs_version: "20"
+
+# Common packages
+common_packages:
+  - curl
+  - wget
+  - jq
+  - unzip
+  - git
+  - ca-certificates
+  - gnupg
+  - lsb-release
+  - htop
+  - tree
+  - vim
+
+# Observability settings
+cloudwatch_agent_enabled: true
+xray_daemon_enabled: true
+
+# Logging
+log_retention_days: 30
+log_level: INFO
+
+# Security
+enable_auto_updates: true
+fail2ban_enabled: true
+
+# Timeouts
+service_start_timeout: 120
+health_check_interval: 30
